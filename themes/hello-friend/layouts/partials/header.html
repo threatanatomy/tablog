@@ -1,0 +1,35 @@
+<header class="header">
+  <span class="header__inner">
+    {{ partial "logo.html" . }}
+    <span class="header__right">
+      {{ if len $.Site.Menus }}
+        {{ partial "menu.html" . }}
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </span>
+      {{ end }}
+      <span class="theme-toggle">
+        {{ partial "theme-icon.html" . }}
+      </span>
+        <span>
+        <ul class="i18n">
+          {{ if .IsTranslated }}
+            {{ range .Translations }}
+              {{/* .Site.Language.Lang */}}
+              {{ if eq .Site.Language.Lang "en" }}
+                {{ $imgpath := printf "%s%s" .Site.BaseURL "img/flag-great-britain.png" }}
+                <li><a title="English" href="{{ .RelPermalink }}"><img id="trans-flag" src={{ $imgpath }} alt="English" /></a></li>
+              {{ else }}
+                {{ $imgpath := printf "%s%s" .Site.BaseURL "img/flag-spain.png" }}
+                <li><a title="Spanish" href="{{ .RelPermalink }}"><img id="trans-flag" src={{ $imgpath }} alt="Spanish" /></a></li>
+              {{ end }}
+            {{ end }}
+          {{ end }}
+        </ul>
+      </span>
+    </span>
+  </span>
+</header>

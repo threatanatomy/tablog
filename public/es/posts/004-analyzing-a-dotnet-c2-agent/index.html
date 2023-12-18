@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    
+      <title>
+        004 - Analizando un agente de C2 - Parte 2: el agente
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it."
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="/es/posts/004-analyzing-a-dotnet-c2-agent/" />
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/style.css" />
+
+<link rel="stylesheet" href="/style.css" />
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png" />
+<link rel="shortcut icon" href="/img/favicon.png" />
+
+
+<link href="/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="004 - Analizando un agente de C2 - Parte 2: el agente"/>
+<meta name="twitter:description" content="In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it."/>
+
+
+
+<meta property="og:title" content="004 - Analizando un agente de C2 - Parte 2: el agente" />
+<meta property="og:description" content="In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/es/posts/004-analyzing-a-dotnet-c2-agent/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-17T12:03:49-05:00" />
+<meta property="article:modified_time" content="2023-12-17T12:03:49-05:00" /><meta property="og:site_name" content="The Malware Ninja Blog" />
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >The Malware Ninja</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/es/contact">Contacto</a></li>
+        
+      
+      
+      
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/es/contact">Contacto</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+        <span>
+        <ul class="i18n">
+          
+        </ul>
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <article class="post">
+    <h1 class="post-title">004 - Analizando un agente de C2 - Parte 2: el agente</h1>
+    <div class="post-meta">
+      
+        <time class="post-date">
+          2023-12-17
+        </time>
+
+        
+          
+        
+      
+
+      
+
+
+      
+        <span class="post-read-time"
+          >— 1 min de lectura</span
+        >
+      
+    </div>
+
+    
+
+    
+      <figure class="post-cover">
+  
+    <img src="/img/003-procExp.png" alt="004 - Analizando un agente de C2 - Parte 2: el agente"/>
+  
+
+  
+</figure>
+
+    
+
+    <div class="post-content">
+      
+      <h2 id="1-introducción">
+  1. Introducción
+  <a href="#1-introducci%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Este post es la continuación de otro donde analizamos una macro maliciosa, que tenía embebido un agente de C2; si aún no lees ese post puedes <a href="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">hacerlo aquí</a>).</p>
+<p>En el primer post identificamos que, luego de realizar ciertas técnicas para dificultar su detección, la macro maliciosa extraía y ejecutaba un archivo .exe que estaba embebido como parte del documento malicioso. En este post, analizaremos dicho archivo de manera estática y dinámica para comprender cómo funciona, cómo identificamos que corresponde a un agende de C2, y qué indicadores de compromiso podemos obtener.</p>
+<blockquote>
+<p><strong>Disclaimer</strong>: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.</p>
+</blockquote>
+<h2 id="2-análisis-estático-del-archivo">
+  2. Análisis estático del archivo
+  <a href="#2-an%c3%a1lisis-est%c3%a1tico-del-archivo" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Iniciamos el análisis obteniendo el hash del ejecutable:</p>
+<table>
+<thead>
+<tr>
+<th>Algoritmo</th>
+<th>Hash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MD5</td>
+<td>59211a4e0f27d70c659636746b61945a</td>
+</tr>
+<tr>
+<td>SHA256</td>
+<td>2110af4e9c7a4f7a39948cdd696fcd8b 4cdbb7a6a5bf5c5a277b779cc1bf8577</td>
+</tr>
+</tbody>
+</table>
+<p>Al abrir el binario en PEStudio, podemos identificar algunas cosas interesantes:</p>
+<p><img src="/img/004-pestudio1.png" alt="alt text" title="PEStudio Analysis">
+<img src="/img/004-pestudio.png" alt="alt text" title="OleVBA analysis"></p>
+<ol>
+<li></li>
+</ol>
+
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Leer otras publicaciones</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+            
+              <span class="button next">
+                <a href="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">
+                  <span class="button__text">003 - Analizando un agente de C2 - Parte 1: el Dropper</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        
+
+      
+    
+  </article>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >The Malware Ninja</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span>
+        <span><a href="https://github.com/panr/hugo-theme-hello-friend" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+    
+  </div>
+</footer>
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>

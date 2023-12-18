@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on </title>
+    
+    
+    
+    <link>/es/posts/</link>
+    <description>Recent content in Posts on </description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 17 Dec 2023 12:03:49 -0500</lastBuildDate>
+    
+	<atom:link href="/es/posts/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>004 - Analizando un agente de C2 - Parte 2: el agente</title>
+      <link>/es/posts/004-analyzing-a-dotnet-c2-agent/</link>
+      <pubDate>Sun, 17 Dec 2023 12:03:49 -0500</pubDate>
+      
+      <guid>/es/posts/004-analyzing-a-dotnet-c2-agent/</guid>
+      <description>
+        
+          &lt;img src=&#34;/img/003-procExp.png&#34;/&gt;
+          
+        
+        
+        
+          In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it.
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>003 - Analizando un agente de C2 - Parte 1: el Dropper</title>
+      <link>/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</link>
+      <pubDate>Fri, 08 Dec 2023 22:29:12 -0500</pubDate>
+      
+      <guid>/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</guid>
+      <description>
+        
+          &lt;img src=&#34;/img/003-procExp.png&#34;/&gt;
+          
+        
+        
+        
+          En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta.
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>002 - Analizando una macro maliciosa</title>
+      <link>/es/posts/002-analyzing-a-malicious-macro/</link>
+      <pubDate>Wed, 06 Dec 2023 12:08:00 -0500</pubDate>
+      
+      <guid>/es/posts/002-analyzing-a-malicious-macro/</guid>
+      <description>
+        
+          &lt;img src=&#34;/img/002-archivoOffice.png&#34;/&gt;
+          
+        
+        
+        
+          En este artículo analizamos desde 0 una macro maliciosa que tiene embebida una bind shell utilizando técnicas de análisis estático y dinámico.
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>001 - Intro</title>
+      <link>/es/posts/001-intro/</link>
+      <pubDate>Tue, 05 Dec 2023 11:25:41 -0500</pubDate>
+      
+      <guid>/es/posts/001-intro/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          Introducción al blog, donde planeo documentar las distintas técnicas que uno puede utilizar a la hora de analizar malware, tanto de forma estática como dinámica.
+          
+        
+        </description>
+    </item>
+    
+  </channel>
+</rss>
