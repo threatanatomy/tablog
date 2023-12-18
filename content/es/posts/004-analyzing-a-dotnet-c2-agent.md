@@ -1,7 +1,7 @@
 +++
 title = '004 - Analizando un agente de C2 - Parte 2: el agente'
 date = 2023-12-17T12:03:49-05:00
-draft = false
+draft = true
 translationKey = '004-dotnet-agent'
 description = 'In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it.'
 cover = "/img/003-procExp.png"
