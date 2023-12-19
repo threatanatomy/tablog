@@ -1,6 +1,6 @@
 +++
 title = '003 - Analyzing a C2 agent - Part 1: The Dropper'
-date = 2023-12-08T22:29:12-05:00
+date = 2023-12-10T22:29:12-05:00
 draft = false
 translationKey = '003-macro-dropper'
 description = 'In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it.'

