@@ -9,7 +9,7 @@
     <description>Recent content in Posts on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 08 Dec 2023 22:29:12 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 10 Dec 2023 22:29:12 -0500</lastBuildDate>
     
 	<atom:link href="/en/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -17,7 +17,7 @@
     <item>
       <title>003 - Analyzing a C2 agent - Part 1: The Dropper</title>
       <link>/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</link>
-      <pubDate>Fri, 08 Dec 2023 22:29:12 -0500</pubDate>
+      <pubDate>Sun, 10 Dec 2023 22:29:12 -0500</pubDate>
       
       <guid>/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</guid>
       <description>

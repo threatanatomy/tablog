@@ -3,124 +3,119 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
     <url>
-      <loc>https://themalware.ninja/es/</loc>
-      <lastmod>2023-12-17T12:03:49-05:00</lastmod>
+      <loc>https://threatanatomy.io/es/</loc>
+      <lastmod>2023-12-10T22:29:12-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/"
+                  href="https://threatanatomy.io/en/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/"
+                  href="https://threatanatomy.io/es/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/posts/004-analyzing-a-dotnet-c2-agent/</loc>
-      <lastmod>2023-12-17T12:03:49-05:00</lastmod>
-    </url>
-  
-    <url>
-      <loc>https://themalware.ninja/es/posts/</loc>
-      <lastmod>2023-12-17T12:03:49-05:00</lastmod>
+      <loc>https://threatanatomy.io/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</loc>
+      <lastmod>2023-12-10T22:29:12-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/posts/"
+                  href="https://threatanatomy.io/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/posts/"
+                  href="https://threatanatomy.io/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</loc>
-      <lastmod>2023-12-08T22:29:12-05:00</lastmod>
+      <loc>https://threatanatomy.io/es/posts/</loc>
+      <lastmod>2023-12-10T22:29:12-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/"
+                  href="https://threatanatomy.io/en/posts/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/"
+                  href="https://threatanatomy.io/es/posts/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/posts/002-analyzing-a-malicious-macro/</loc>
+      <loc>https://threatanatomy.io/es/posts/002-analyzing-a-malicious-macro/</loc>
       <lastmod>2023-12-06T12:08:00-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/posts/002-analyzing-a-malicious-macro/"
+                  href="https://threatanatomy.io/en/posts/002-analyzing-a-malicious-macro/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/posts/002-analyzing-a-malicious-macro/"
+                  href="https://threatanatomy.io/es/posts/002-analyzing-a-malicious-macro/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/posts/001-intro/</loc>
+      <loc>https://threatanatomy.io/es/posts/001-intro/</loc>
       <lastmod>2023-12-05T11:25:41-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/posts/001-intro/"
+                  href="https://threatanatomy.io/en/posts/001-intro/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/posts/001-intro/"
+                  href="https://threatanatomy.io/es/posts/001-intro/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/categories/</loc>
+      <loc>https://threatanatomy.io/es/categories/</loc>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/categories/"
+                  href="https://threatanatomy.io/en/categories/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/categories/"
+                  href="https://threatanatomy.io/es/categories/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/contact/</loc>
+      <loc>https://threatanatomy.io/es/contact/</loc>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/contact/"
+                  href="https://threatanatomy.io/en/contact/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/contact/"
+                  href="https://threatanatomy.io/es/contact/"
                   />
     </url>
   
     <url>
-      <loc>https://themalware.ninja/es/tags/</loc>
+      <loc>https://threatanatomy.io/es/tags/</loc>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
-                  href="https://themalware.ninja/en/tags/"
+                  href="https://threatanatomy.io/en/tags/"
                   />
       <xhtml:link
                   rel="alternate"
                   hreflang="es"
-                  href="https://themalware.ninja/es/tags/"
+                  href="https://threatanatomy.io/es/tags/"
                   />
     </url>
   

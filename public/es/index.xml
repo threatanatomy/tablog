@@ -9,34 +9,15 @@
     <description>Recent content on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 17 Dec 2023 12:03:49 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 10 Dec 2023 22:29:12 -0500</lastBuildDate>
     
 	<atom:link href="/es/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>004 - Analizando un agente de C2 - Parte 2: el agente</title>
-      <link>/es/posts/004-analyzing-a-dotnet-c2-agent/</link>
-      <pubDate>Sun, 17 Dec 2023 12:03:49 -0500</pubDate>
-      
-      <guid>/es/posts/004-analyzing-a-dotnet-c2-agent/</guid>
-      <description>
-        
-          &lt;img src=&#34;/img/003-procExp.png&#34;/&gt;
-          
-        
-        
-        
-          In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it.
-          
-        
-        </description>
-    </item>
-    
-    <item>
       <title>003 - Analizando un agente de C2 - Parte 1: el Dropper</title>
       <link>/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</link>
-      <pubDate>Fri, 08 Dec 2023 22:29:12 -0500</pubDate>
+      <pubDate>Sun, 10 Dec 2023 22:29:12 -0500</pubDate>
       
       <guid>/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/</guid>
       <description>
@@ -106,7 +87,7 @@
         
         
           ¿Encontraste algún error en mi análisis? ¿Tal vez omití algo? ¿Solo deseas decir &amp;lsquo;Hola!&amp;rsquo;?
-Puedes enviarme un correo a contact@themalware.ninja.
+Puedes enviarme un correo a contact@threatanatomy.io.
 ¡Gracias!
           
         
