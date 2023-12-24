@@ -405,7 +405,7 @@ Aún así, el comportamiento que realiza el documento (crear una carpeta, extrae
 
 Como parte de este análisis, pudimos identificar distintos indicadores de compromiso: archivos con un nombre estático, hashes de los distintos archivos comprimidos y ejecutables, así como carpetas creadas. Los IOC identificados se detallan en la sección 7.
 
-El payload malicioso corresponde a un agente que se comunica con un servidor de Comando y Control, en la segunda parte del post exploraremos cómo funciona el agente, las acciones que realiza y cómo podemos obtener posibles indicadores de compromiso de este.
+El payload malicioso corresponde a un agente que se comunica con un servidor de Comando y Control, [en la segunda parte del post](/es/posts/004-analyzing-a-dotnet-c2-agent/) exploraremos cómo funciona el agente, las acciones que realiza y cómo podemos obtener posibles indicadores de compromiso de este.
 
 
 

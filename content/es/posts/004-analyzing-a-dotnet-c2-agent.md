@@ -1,6 +1,6 @@
 +++
 title = '004 - Analizando un agente de C2 - Parte 2: el agente'
-date = 2023-12-20T12:03:49-05:00
+date = 2023-12-24T12:03:49-05:00
 draft = false
 translationKey = '004-dotnet-agent'
 description = 'En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.'
@@ -9,9 +9,7 @@ description = 'En este artículo, continuación directa del artículo anterior, 
 
 ## 1. Introducción
 
-Este artículo es la continuación de otro donde analizamos una macro maliciosa, la cual tenía embebido un agente de C2; si aún no lees ese post puedes [hacerlo aquí](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/).
-
-En el primer artículo identificamos que, luego de ejecutar ciertas técnicas para dificultar su detección, la macro maliciosa extraía y ejecutaba un binario .exe que estaba embebido como parte del documento malicioso. En este artículo, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.
+En [la primera parte de este artículo](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/) identificamos que, luego de ejecutar ciertas técnicas para dificultar su detección, la macro maliciosa que analizamos extraía y ejecutaba un binario .exe que tenía embebido. En esta parte, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.
 
 Debido a la longitud del artículo, en una tercera parte se evaluará de manera dinámica el binario.
 
@@ -30,7 +28,7 @@ Iniciamos el análisis obteniendo el hash del ejecutable:
 | SHA256    | 2110af4e9c7a4f7a39948cdd696fcd8b 4cdbb7a6a5bf5c5a277b779cc1bf8577 |
 
 
-Al abrir el binario en PEStudio, podemos identificar algunas cosas interesantes:
+Al abrir el binario en [PEStudio](https://www.winitor.com/download), podemos identificar algunas cosas interesantes:
 
 ![alt text](/img/004-pestudio1.png "PEStudio Analysis")
 
@@ -44,7 +42,7 @@ Dichos factores parecen indicarnos que se trata de un programa .NET; adicionalme
 
 ![alt text](/img/004-pestudio3.png "PEStudio Imports")
 
-1. PEStudio identifica el namespace .NET System.Net.Socket.
+1. PEStudio identifica el namespace .NET System.Net.Socket
 2. PEStudio identifica que el programa, durante su ejecución, importa [clases de .NET](https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0)
 
 Con dicha información, podemos decir con casi total certeza de que el binario corresponde a uno desarrollado con el framework .NET. Adicionalmente, verificamos que PEStudio identifica una IP, que puede ser un indicador de compromiso (IOC) de interés.
@@ -53,7 +51,7 @@ Con dicha información, podemos decir con casi total certeza de que el binario c
 
 Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directamente al lenguaje máquina binario que la computadora entiende (los 0 y 1). En su lugar, se compilan a un lenguaje intermedio conocido como Intermediate Language (IL), el cual es convertido durante la ejecución del programa al lenguaje máquina específico del entorno en el que se está ejecutando.
 
-Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre nombres de clases, métodos, metadata, etc. del programa original, lo que permite que sea decompilado y así, "revertido" casi a su forma original.
+Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre nombres de clases, métodos, metadata, etc., lo que permite que sea decompilado y así, "revertido" casi a su forma original.
 
 Existen distintas herramientas que permiten decompilar un archivo creado en .NET, entre las que se encuentran [_ILSpy_](https://github.com/icsharpcode/ILSpy) y [_dnSpy_](https://github.com/dnSpy/dnSpy); para el presente análisis utilizaré _dnSpy_ debido a las capacidades de debugging que ofrece.
 
@@ -85,7 +83,7 @@ private void InitializeComponent()
 
 		}
 ```
-2. El método **Form1_Load** detiene la ejecución ("duerme") por unos segundos antes de llamar al método **corediQart()** de la clase **MIETDIM**:
+2. El método **Form1_Load** detiene la ejecución ("duerme") por unos segundos antes de llamar al método **corediQart()**:
 
 ```c#
 private void Form1_Load(object sender, EventArgs e)
