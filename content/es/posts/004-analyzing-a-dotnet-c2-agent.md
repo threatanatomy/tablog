@@ -1,6 +1,6 @@
 +++
 title = '004 - Analizando un agente de C2 - Parte 2: el agente'
-date = 2023-12-24T12:03:49-05:00
+date = 2023-12-23T12:03:49-05:00
 draft = false
 translationKey = '004-dotnet-agent'
 description = 'En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.'
