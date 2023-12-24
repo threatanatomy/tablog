@@ -16,7 +16,6 @@ Debido a la longitud del artículo, en una tercera parte se evaluará de manera 
 > **Disclaimer**: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.
 
 
-
 ## 2. Análisis estático del archivo
 ### 2.1 Identificación de hashes y framework de desarrollo utilizado
 
