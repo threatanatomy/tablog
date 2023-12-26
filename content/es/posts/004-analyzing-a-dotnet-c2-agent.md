@@ -9,14 +9,14 @@ description = 'En este artículo, continuación directa del artículo anterior, 
 
 ## 1. Introducción
 
-En [la primera parte de este artículo](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/) identificamos que, luego de ejecutar ciertas técnicas para dificultar su detección, la macro maliciosa que analizamos extraía y ejecutaba un binario .exe que tenía embebido. En esta parte, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.
+En [la primera parte de este artículo](/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/) identificamos que, luego de implemenetar ciertas técnicas para dificultar su detección, la macro maliciosa que analizamos extraía y ejecutaba un binario .exe que tenía embebido. En esta parte, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.
 
 Debido a la longitud del artículo, en una tercera parte se evaluará de manera dinámica el binario.
 
 > **Disclaimer**: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.
 
 
-## 2. Análisis estático del archivo
+## 2. Análisis estático del ejecutable
 ### 2.1 Identificación de hashes y framework de desarrollo utilizado
 
 Iniciamos el análisis obteniendo el hash del ejecutable:
@@ -48,11 +48,11 @@ Con dicha información, podemos decir con casi total certeza de que el binario c
 
 ### Decompilación de binarios .NET
 
-Los archivos desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directamente al lenguaje máquina binario que la computadora entiende (los 0 y 1). En su lugar, se compilan a un lenguaje intermedio conocido como Intermediate Language (IL), el cual es convertido durante la ejecución del programa al lenguaje máquina específico del entorno en el que se está ejecutando.
+Los programas desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directamente al lenguaje máquina binario que la computadora entiende (los 0 y 1). En su lugar, se compilan a un lenguaje intermedio conocido como Intermediate Language (IL), el cual es convertido durante la ejecución del programa al lenguaje máquina específico del entorno en el que se está ejecutando.
 
 Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre nombres de clases, métodos, metadata, etc., lo que permite que sea decompilado y así, "revertido" casi a su forma original.
 
-Existen distintas herramientas que permiten decompilar un archivo creado en .NET, entre las que se encuentran [_ILSpy_](https://github.com/icsharpcode/ILSpy) y [_dnSpy_](https://github.com/dnSpy/dnSpy); para el presente análisis utilizaré _dnSpy_ debido a las capacidades de debugging que ofrece.
+Existen distintas herramientas que permiten decompilar un binario creado en .NET, entre las que se encuentran [_ILSpy_](https://github.com/icsharpcode/ILSpy) y [_dnSpy_](https://github.com/dnSpy/dnSpy); para el presente análisis utilizaré _dnSpy_ debido a las capacidades de debugging que ofrece.
 
 ### 2.2 Análisis inicial del binario
 
@@ -60,7 +60,7 @@ Al abrir el ejecutable en _dnSpy_, validamos que efectivamente podemos visualiza
 
 ![alt text](/img/004-dnspy.png "dnSpy")
 
-Dado que analizar cada función que llama el ejecutable puede ser muy tedioso, seguiremos el flujo de llamadas que se hacen desde el método Main.
+Dado que analizar cada función que llama el ejecutable puede ser muy tedioso (especialmente si contiene código basura destinado a dificultar el análisis), seguiremos el flujo de llamadas que se hacen desde el método Main.
 
 1. Verificamos que cuando el programa se inicia llama al formulario Form1, el cual, al inicializarse, invoca al método **InitializeComponent()**. De la configuración de dicho método podemos destacar tres cosas:
 	1. Se configura la opacidad del formulario a 0 para hacer de este invisible.
@@ -224,6 +224,7 @@ Sin analizar el resto de las funciones, el comportamiento del programa ya nos ha
 
 En base a dicho análisis podemos asumir que el servidor envía comandos al agente, el cual los ejecuta. Posterior análisis nos permitirá confirmar si realmente es un agente de Comando y Control, así como las capacidades que tiene este agente.
 
+
 ### 2.3 Análisis de los métodos del agente de C2
 
 Debido a que analizar cada función sería muy tedioso, analizaremos algunas funciones que me parecieron interesantes:
@@ -241,7 +242,7 @@ Al recibir el comando "geyTtavs", se obtienen los procesos que se están ejecuta
 
 La función **loadQData** envía el tipo de respuesta a esperar, el tamaño de esta y la respuesta al servidor.
 
-Con solo analizar la función de listar procesos, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y la envía de vuelta al servidor.
+Con solo analizar la función de listar procesos, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y envía la respuesta al servidor.
 
 
 #### 2.3.2 Establecer persistencia
