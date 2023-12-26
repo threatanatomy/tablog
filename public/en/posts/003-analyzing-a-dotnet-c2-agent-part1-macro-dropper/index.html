@@ -551,7 +551,7 @@ End Sub
 <p>As we saw in the analysis, exploring how a dropper works allows us to understand the different techniques that an attacker may follow to prevent the malware they developed from being identified: whether it is adding passwords to macros, obfuscating (albeit slightly) the names of variables and functions, or embedding the malicious payloads under multiple layers and renames, everything is intended to hinder manual analysis and rapid identification by automated tools that rely on known signatures and patterns.</p>
 <p>Even so, the behavior that the document exhibits (creating a folder, extracting files, executing an .exe) is not standard for a normal document, so there is still a chance of detection by analyzing what the file does when executed.</p>
 <p>As part of this analysis, we were able to identify different indicators of compromise: files with a static name, hashes of the various compressed and executable files, as well as folders created. The identified IOCs are detailed in section 7.</p>
-<p>The malicious payload corresponds to an agent that communicates with a Command and Control server, in the second part of the post we will explore how the agent works, the actions it performs and how we can obtain indicators of compromise from it.</p>
+<p>The malicious payload corresponds to an agent that communicates with a Command and Control server. <a href="/en/posts/004-analyzing-a-dotnet-c2-agent/">In the second part of the post</a> we will explore how the agent works, the actions it performs and how we can obtain indicators of compromise from it.</p>
 <h2 id="6-mitre-attck-mapping">
   6. MITRE ATT&amp;CK mapping
   <a href="#6-mitre-attck-mapping" class="h-anchor" aria-hidden="true">#</a>
@@ -660,6 +660,13 @@ End Sub
             <hr />
           </div>
           <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="/en/posts/004-analyzing-a-dotnet-c2-agent/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">004 - Analyzing a C2 agent - Part 2: the agent</span>
+                </a>
+              </span>
             
             
               <span class="button next">

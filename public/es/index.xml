@@ -8,11 +8,31 @@
     <link>/es/</link>
     <description>Recent content on </description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>es</language>
-    <lastBuildDate>Sun, 10 Dec 2023 22:29:12 -0500</lastBuildDate>
+    <language>en</language>
+    <lastBuildDate>Tue, 26 Dec 2023 12:03:49 -0500</lastBuildDate>
     
 	<atom:link href="/es/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>004 - Analizando un agente de C2 - Parte 2: el agente</title>
+      <link>/es/posts/004-analyzing-a-dotnet-c2-agent/</link>
+      <pubDate>Tue, 26 Dec 2023 12:03:49 -0500</pubDate>
+      
+      <guid>/es/posts/004-analyzing-a-dotnet-c2-agent/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.
+          
+        
+        </description>
+    </item>
     
     <item>
       <title>003 - Analizando un agente de C2 - Parte 1: el Dropper</title>

