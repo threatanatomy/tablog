@@ -403,7 +403,7 @@ Even so, the behavior that the document exhibits (creating a folder, extracting 
 As part of this analysis, we were able to identify different indicators of compromise: files with a static name, hashes of the various compressed and executable files, as well as folders created. The identified IOCs are detailed in section 7.
 
 
-The malicious payload corresponds to an agent that communicates with a Command and Control server, in the second part of the post we will explore how the agent works, the actions it performs and how we can obtain indicators of compromise from it.
+The malicious payload corresponds to an agent that communicates with a Command and Control server. [In the second part of the post](/en/posts/004-analyzing-a-dotnet-c2-agent/) we will explore how the agent works, the actions it performs and how we can obtain indicators of compromise from it.
 
 
 ## 6. MITRE ATT&CK mapping

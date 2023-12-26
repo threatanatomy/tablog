@@ -1,10 +1,13 @@
 +++
 title = '004 - Analyzing a C2 agent - Part 2: the agent'
-date = 2023-12-23T12:04:49-05:00
-draft = true
+date = 2023-12-26T12:05:50-05:00
+draft = false
 translationKey = '004-dotnet-agent'
 description = 'In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it.'
 +++
+
+
+*Este artículo también está disponible en [español](/es/posts/004-analyzing-a-dotnet-c2-agent/)*
 
 
 ## 1. Introduction
@@ -26,15 +29,15 @@ We start the analysis by obtaining the hash of the executable:
 | SHA256    | 2110af4e9c7a4f7a39948cdd696fcd8b 4cdbb7a6a5bf5c5a277b779cc1bf8577 |
 
 
-After opening the binary in [PEStudio](https://www.winitor.com/download), we can identify some interesting things:
+After opening the binary in [PEStudio](https://www.winitor.com/download), we see some interesting things:
 
 ![alt text](/img/004-pestudio1.png "PEStudio Analysis")
 
 1. PEStudio identifies the binary as of "Microsoft .NET" type.
-2. The binary appears to have been compiled on September 05, 2023, so it is recent (this value can be altered so it is not 100% reliable).
+2. The binary appears to have been compiled on September 05 2023, so it is recent (this value can be altered so it is not 100% reliable).
 3. The path to the "debug" file of the binary is identified, which contains \obj\Debug, a standard directory created by Visual Studio.
 
-These factors seem to suggest that it is a .NET program; additionally, by analyzing some of the other sections of information provided by PEStudio we can get further confirmation of this:
+These factors seem to suggest that it is a .NET program; additionally, by analyzing some of the other sections provided by PEStudio we can get further confirmation of this:
 
 ![alt text](/img/004-pestudio2.png "PEStudio Indicators")
 
@@ -47,9 +50,9 @@ With this information, we can say with near total certainty that the binary corr
 
 ### Decompilation of .NET binaries
 
-Programs developed in .NET are usually susceptible to decompilation, because they are not compiled directly to the binary machine language that the computer understands (the 0's and 1's). Instead, they are compiled to an intermediate language (IL), which is converted during the program's execution to the specific machine language of the environment in which it is running.
+Programs developed in .NET are usually susceptible to decompilation because they are not compiled directly to the binary machine language that the computer understands (the 0's and 1's). Instead, they are compiled to an intermediate language (IL), which is converted during the program's execution to the specific machine language of the environment in which it is running.
 
-Although this framework provides flexibility, the intermediate language contains information about class names, methods, metadata, etc., which allows it to be decompiled and thus, "reverted" almost to its original form.
+Although this framework provides flexibility, the intermediate language contains information about classes names, methods, metadata, etc., which allows it to be decompiled and thus, "reverted" almost to its original form.
 
 There are different tools that allow decompiling a binary created in .NET, among them [_ILSpy_](https://github.com/icsharpcode/ILSpy) and [_dnSpy_](https://github.com/dnSpy/dnSpy); for this analysis I will use _dnSpy_ due to the debugging capabilities it offers.
 
@@ -62,7 +65,7 @@ When we open the executable in _dnSpy_, we validate that we can indeed visualize
 
 Since analyzing each function called by the executable can be very tedious (specially if it contains garbage code to hinder analysis), we will follow the flow of calls made from the Main method.
 
-1. We verify that when the program starts it calls the Form1 form, which, when initialized, invokes the **InitializeComponent()** method. From this method's configuration we can point out three things:
+1. We verify that when the program starts it calls the Form1 form, which, when initialized, invokes the **InitializeComponent()** method. From this method's configuration we can gather three things:
     1. The opacity of the form is set to 0 to make it invisible.
     2. The form is configured not to have an icon in the taskbar.
     3. The method **Form1_Load** is called.
@@ -156,7 +159,7 @@ public static byte[] min_codns = new byte[]
 {49, 54, 50, 46, 50, 52, 53, 46, 49, 57, 49, 46, 50, 49, 55};
 ```
 
-The TCP connection is made with the IP stored in the _min\_codns_ variable on the port assigned to the _port_ variable.
+The TCP connection is established with the IP stored in the _min\_codns_ variable on the port assigned to the _port_ variable.
 
 5. Once the connection is made, if successful, the **procD_core()** method is called, which performs multiple operations:
     1. Gets a response from the previously established TCP connection.
@@ -216,7 +219,7 @@ public string[] get_procsQtype()
 }
 ```
 
-Without analyzing the rest of the functions, the behavior of the program already suggests that it may be a C2 agent:
+Without analyzing the rest of the functions, the behavior of the program already suggests that it might be a C2 agent:
 1. Every so often (approximately every minute), it communicates with a server using a non-common IP and a non-common port.
 2. It receives a response from the server, which is composed of two sections.
 3. Based on the first section (commands), it calls methods by passing them the second section (payload/command parameters).
@@ -224,17 +227,17 @@ Without analyzing the rest of the functions, the behavior of the program already
 Based on this analysis we can assume that the server sends commands to the agent, which executes them. Further analysis will allow us to confirm if it is really a Command and Control agent, as well as the capabilities that this agent has.
 
 
-### 2.3 Analysis of C2 agent methods
+### 2.3 Analysis of C2 agent functions
 
 Since analyzing each function would be very tedious, we will analyze some functions that I found interesting:
 
-#### 2.3.1 Listar procesos
+#### 2.3.1 List processes
 
 As in the macro containing the binary, the use of underscores to separate commands/variables is seen: 
 
 ![alt text](/img/004-lp1.png "Obfuscation")
 
-When the "geyTtavs" command is received, the processes running on the system are obtained and their ID and name are sent using the **loadQData** function:
+When the "geyTtavs" command is received, the processes running on the system are obtained and their ID and name are sent to the server using the **loadQData** function:
 
 ![alt text](/img/004-lp2.png "List Processes")
 
@@ -246,7 +249,7 @@ Just by analyzing the "list processes" function, we can confirm that it is indee
 
 The registry key _HKEY\_CURRENT\_USER\Software\Microsoft\Windows\CurrentVersion\Run_ is usually abused by attackers to establish persistence; such technique is [listed in MITRE ATT&CK with ID T1547.001](https://attack.mitre.org/techniques/T1547/001/) and [allows an attacker to run a program when the user logs in](https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys), under the context (permissions) of that user.
 
-We verify that the agent provides the capability to establish persistence, on receiving the command "puyTtsrt" it creates the registry key with name "haijwivetsgVr":
+We verify that the agent provides the capability to establish persistence. On receiving the command "puyTtsrt" it creates the registry key with name "haijwivetsgVr":
 
 ![alt text](/img/004-pers1.png "Establish persistence 1")
 
@@ -293,7 +296,7 @@ To execute a program that already exists in the system (either native or downloa
 
 ```C#
 if (text == "ruyTnf") {
-  ..
+  ...
     Process.Start(procss_type[1].Split(new char[] { '>' })[0]);
   } catch {
   }
@@ -329,5 +332,24 @@ In the next article I will elaborate on how someone can interact with the malwar
 
 ## 4. MITRE ATT&CK Mapping
 
+| ID        | Tactic              | Technique                                                             | Description                                                                 |
+|-----------|---------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| T1059.003 | Execution           | Command and Scripting Interpreter: Windows Command Shell              | The method Process.Start was used to initiate new processes                 |
+| T1547.001 | Persistence         | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | A registry key was used to stablish persistence                             |
+| T1070.004 | Defence evasion     | Indicator Removal: File Deletion                                      | The agent has the capability to delete files                                |
+| T1027.010 | Defence evasion     | Obfuscated Files or Information: Command Obfuscation                  | Character substitution was used to obfuscate commands                       |
+| T1057     | Discovery           | Process Discovery                                                     | The agent has the capability to list processes                              |
+| T1082     | Discovery           | System Information Discovery                                          | The agent has the capability to obtain information about the system         |
+| T1113     | Collection          | Screen Capture                                                        | The agent has the capability to take screenshots                            |
+| T1005     | Collection          | Data from Local System                                                | The agent has the capability to obtain information about the system's files |
+| T1571     | Command and Control | Non-Standard Port                                                     | The agent communicates using a non-standard port                            |
+| T1095     | Command and Control | Non-Application Layer Protocol                                        | The agent communicates directly through a TCP connection                    |
+| T1041     | Command and Control | Exfiltration Over C2 Channel                                          | The agent exfiltrates information using the connection with the C2 server   |
 
 ## 5. IOC
+
+| IOC                                                                           | Tipo              | Descripción                                |
+|-------------------------------------------------------------------------------|-------------------|--------------------------------------------|
+| 59211a4e0f27d70c659 636746b61945a                                              | Hash MD5          | C2 agent hash                              |
+| 162.245.191.217                                                               | IP                | IP that the agent calls                    |
+| HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr | Llave de registro | Registry key used to establish persistence |

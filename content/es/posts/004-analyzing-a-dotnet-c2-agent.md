@@ -1,10 +1,13 @@
 +++
 title = '004 - Analizando un agente de C2 - Parte 2: el agente'
-date = 2023-12-23T12:03:49-05:00
+date = 2023-12-26T12:03:49-05:00
 draft = false
 translationKey = '004-dotnet-agent'
 description = 'En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.'
 +++
+
+
+*This article is also available in [english](/en/posts/004-analyzing-a-dotnet-c2-agent/)*
 
 
 ## 1. Introducción
@@ -338,9 +341,8 @@ En el próximo artículo detallaré como alguien puede interactuar con el malwar
 | ID        | Táctica             | Técnica                                                               | Descripción                                                                                                                                |
 |-----------|---------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
 | T1059.003 | Ejecución           | Command and Scripting Interpreter: Windows Command Shell              | Se utilizó el método Process.Start para iniciar nuevos procesos                                                                            |
-| T1547.001 | Persistencia        | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | Se utilizó la llave de registro HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\haijwivetsgVr para establecer persistencia |
+| T1547.001 | Persistencia        | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | Se utilizó una llave de registro para establecer persistencia |
 | T1070.004 | Evasión de defensas | Indicator Removal: File Deletion                                      | El agente tiene la capacidad de eliminar archivos                                                                                          |
-| T1027.010 | Evasión de defensas | Obfuscated Files or Information: Command Obfuscation                  | Se utilizó el reemplazo de caracteres para ofuscar comandos                                                                                |
 | T1057     | Descubrimiento      | Process Discovery                                                     | El agente tiene la capacidad de listar procesos                                                                                            |
 | T1082     | Descubrimiento      | System Information Discovery                                          | El agente tiene la capacidad de obtener información del sistema                                                                            |
 | T1027.010 | Evasión de defensas | Obfuscated Files or Information: Command Obfuscation                  | Se utilizó el reemplazo de caracteres para ofuscar comandos                                                                                |
