@@ -178,3 +178,27 @@ En un futuro artículo analizaré un nuevo malware, idealmente uno que no esté 
 
 De tener algún feedback o sugerencia no olvides escribirme a contact@threatanatomy.io!
 
+
+## 4. Mapeo MITRE ATT&CK
+
+| ID        | Táctica             | Técnica                                                               | Descripción                                                                                                                                |
+|-----------|---------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| T1059.003 | Ejecución           | Command and Scripting Interpreter: Windows Command Shell              | Se utilizó el método Process.Start para iniciar nuevos procesos                                                                            |
+| T1547.001 | Persistencia        | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | Se utilizó una llave de registro para establecer persistencia |
+| T1070.004 | Evasión de defensas | Indicator Removal: File Deletion                                      | El agente tiene la capacidad de eliminar archivos                                                                                          |
+| T1057     | Descubrimiento      | Process Discovery                                                     | El agente tiene la capacidad de listar procesos                                                                                            |
+| T1082     | Descubrimiento      | System Information Discovery                                          | El agente tiene la capacidad de obtener información del sistema                                                                            |
+| T1027.010 | Evasión de defensas | Obfuscated Files or Information: Command Obfuscation                  | Se utilizó el reemplazo de caracteres para ofuscar comandos                                                                                |
+| T1113     | Colección           | Screen Capture                                                        | El agente tiene la capacidad de sacar capturas de pantalla                                                                                 |
+| T1005     | Colección           | Data from Local System                                                | El agente tiene la capacidad de obtener información de archivos del sistema                                                                |
+| T1571     | Comando y Control   | Non-Standard Port                                                     | El agente no utiliza puertos comunes para comunicarse con el servidor de C2                                                                |
+| T1095     | Comando y Control   | Non-Application Layer Protocol                                        | El agente se comunica mediante TCP, interactuando directo con el flujo de datos                                                            |
+| T1041     | Comando y Control   | Exfiltration Over C2 Channel                                          | El agente exfiltra información utilizando la conexión establecida con el servidor de C2                                                    |
+
+## 5. IOC
+
+| IOC                                                                           | Tipo              | Descripción                                              |
+|-------------------------------------------------------------------------------|-------------------|----------------------------------------------------------|
+| 59211a4e0f27d70 c659636746b61945a                                              | Hash MD5          | Hash del agente de C2                                    |
+| 162.245.191.217                                                               | IP                | IP a donde se comunica el agente                         |
+| HKEY_CURRENT_USER\ Software\Microsoft \Windows\CurrentVersion\ Run\haijwivetsgVr | Llave de registro | Llave que el agente utiliza para establecer persistencia |

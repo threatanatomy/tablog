@@ -174,3 +174,27 @@ When I started the analysis of this malware I only knew that it contained a mali
 In a future article I will analyze new malware, ideally one that is not based on Macros or .NET to document new analysis techniques; even so, regardless of the analysis tool, the methodology is the same, so I invite readers to replicate what has been done and thus practice.
 
 If you have any feedback or suggestions do not hesitate to contact me at contact@threatanatomy.io!
+
+## 4. MITRE ATT&CK Mapping
+
+| ID        | Tactic              | Technique                                                             | Description                                                                 |
+|-----------|---------------------|-----------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| T1059.003 | Execution           | Command and Scripting Interpreter: Windows Command Shell              | The method Process.Start was used to initiate new processes                 |
+| T1547.001 | Persistence         | Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder | A registry key was used to stablish persistence                             |
+| T1070.004 | Defence evasion     | Indicator Removal: File Deletion                                      | The agent has the capability to delete files                                |
+| T1027.010 | Defence evasion     | Obfuscated Files or Information: Command Obfuscation                  | Character substitution was used to obfuscate commands                       |
+| T1057     | Discovery           | Process Discovery                                                     | The agent has the capability to list processes                              |
+| T1082     | Discovery           | System Information Discovery                                          | The agent has the capability to obtain information about the system         |
+| T1113     | Collection          | Screen Capture                                                        | The agent has the capability to take screenshots                            |
+| T1005     | Collection          | Data from Local System                                                | The agent has the capability to obtain information about the system's files |
+| T1571     | Command and Control | Non-Standard Port                                                     | The agent communicates using a non-standard port                            |
+| T1095     | Command and Control | Non-Application Layer Protocol                                        | The agent communicates directly through a TCP connection                    |
+| T1041     | Command and Control | Exfiltration Over C2 Channel                                          | The agent exfiltrates information using the connection with the C2 server   |
+
+## 5. IOC
+
+| IOC                                                                           | Tipo              | Descripción                                |
+|-------------------------------------------------------------------------------|-------------------|--------------------------------------------|
+| 59211a4e0f27d70c659 636746b61945a                                              | MD5 Hash          | C2 agent hash                              |
+| 162.245.191.217                                                               | IP                | IP that the agent calls                    |
+| HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr | Registry key | Registry key used to establish persistence |

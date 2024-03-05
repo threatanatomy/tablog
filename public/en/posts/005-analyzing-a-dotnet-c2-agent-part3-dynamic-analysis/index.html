@@ -175,7 +175,7 @@
 
       
         <span class="post-read-time"
-          >— 7 min read</span
+          >— 8 min read</span
         >
       
     </div>
@@ -340,6 +340,118 @@
 <p>When I started the analysis of this malware I only knew that it contained a malicious macro, but not that it embedded a Command and Control agent, that I would be able to decompile, analyze, and develop a POC to interact with it. The malware obtained was the perfect opportunity to practice different analysis techniques, both static and dynamic, allowing us to reverse engineer the malware without having to read assembly code.</p>
 <p>In a future article I will analyze new malware, ideally one that is not based on Macros or .NET to document new analysis techniques; even so, regardless of the analysis tool, the methodology is the same, so I invite readers to replicate what has been done and thus practice.</p>
 <p>If you have any feedback or suggestions do not hesitate to contact me at <a href="mailto:contact@threatanatomy.io">contact@threatanatomy.io</a>!</p>
+<h2 id="4-mitre-attck-mapping">
+  4. MITRE ATT&amp;CK Mapping
+  <a href="#4-mitre-attck-mapping" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Tactic</th>
+<th>Technique</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1059.003</td>
+<td>Execution</td>
+<td>Command and Scripting Interpreter: Windows Command Shell</td>
+<td>The method Process.Start was used to initiate new processes</td>
+</tr>
+<tr>
+<td>T1547.001</td>
+<td>Persistence</td>
+<td>Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder</td>
+<td>A registry key was used to stablish persistence</td>
+</tr>
+<tr>
+<td>T1070.004</td>
+<td>Defence evasion</td>
+<td>Indicator Removal: File Deletion</td>
+<td>The agent has the capability to delete files</td>
+</tr>
+<tr>
+<td>T1027.010</td>
+<td>Defence evasion</td>
+<td>Obfuscated Files or Information: Command Obfuscation</td>
+<td>Character substitution was used to obfuscate commands</td>
+</tr>
+<tr>
+<td>T1057</td>
+<td>Discovery</td>
+<td>Process Discovery</td>
+<td>The agent has the capability to list processes</td>
+</tr>
+<tr>
+<td>T1082</td>
+<td>Discovery</td>
+<td>System Information Discovery</td>
+<td>The agent has the capability to obtain information about the system</td>
+</tr>
+<tr>
+<td>T1113</td>
+<td>Collection</td>
+<td>Screen Capture</td>
+<td>The agent has the capability to take screenshots</td>
+</tr>
+<tr>
+<td>T1005</td>
+<td>Collection</td>
+<td>Data from Local System</td>
+<td>The agent has the capability to obtain information about the system&rsquo;s files</td>
+</tr>
+<tr>
+<td>T1571</td>
+<td>Command and Control</td>
+<td>Non-Standard Port</td>
+<td>The agent communicates using a non-standard port</td>
+</tr>
+<tr>
+<td>T1095</td>
+<td>Command and Control</td>
+<td>Non-Application Layer Protocol</td>
+<td>The agent communicates directly through a TCP connection</td>
+</tr>
+<tr>
+<td>T1041</td>
+<td>Command and Control</td>
+<td>Exfiltration Over C2 Channel</td>
+<td>The agent exfiltrates information using the connection with the C2 server</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-ioc">
+  5. IOC
+  <a href="#5-ioc" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<table>
+<thead>
+<tr>
+<th>IOC</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>59211a4e0f27d70c659 636746b61945a</td>
+<td>MD5 Hash</td>
+<td>C2 agent hash</td>
+</tr>
+<tr>
+<td>162.245.191.217</td>
+<td>IP</td>
+<td>IP that the agent calls</td>
+</tr>
+<tr>
+<td>HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr</td>
+<td>Registry key</td>
+<td>Registry key used to establish persistence</td>
+</tr>
+</tbody>
+</table>
 
     </div>
     
