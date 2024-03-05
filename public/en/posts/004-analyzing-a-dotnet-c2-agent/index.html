@@ -480,7 +480,7 @@
 <p>When I started writing this article I thought it would be the final part of the analysis; however, after identifying the number of functions that the agent exposed, I preferred to go into detail on some of them and leave the dynamic analysis for the next article.</p>
 <p>The analyzed malware has all the characteristics of a Command and Control agent: it contacts the server from time to time, allows obtaining information from the system, allows exfiltrating information, allows downloading binaries to the system and executing them, among other functions.</p>
 <p>The malware uses a couple of techniques to bypass static code analysis tools: the use of underscores to alter variable names/registry keys, as well as the use of a byte array to store an IP instead of storing it in plaintext; however, the fact that it has been developed in .NET allows for easy decompilation and analysis.</p>
-<p>In the next article I will elaborate on how someone can interact with the malware as part of their analysis, and thus evidence whether it has any unidentified behavior not identified as part of the static analysis.</p>
+<p><a href="/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/">In the next article</a> I will elaborate on how someone can interact with the malware as part of their analysis, and thus evidence whether it has any unidentified behavior not identified as part of the static analysis.</p>
 <h2 id="4-mitre-attck-mapping">
   4. MITRE ATT&amp;CK Mapping
   <a href="#4-mitre-attck-mapping" class="h-anchor" aria-hidden="true">#</a>

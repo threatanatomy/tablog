@@ -10,7 +10,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta
   name="description"
-  content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento."
+  content="En este artículo analizaremos de manera dinámica el agente de C2 que obtuvimos previamente y evaluaremos formas de interactuar con él para entender su funcionamiento."
 />
 <meta
   name="keywords"
@@ -47,12 +47,12 @@
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico"/>
-<meta name="twitter:description" content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento."/>
+<meta name="twitter:description" content="En este artículo analizaremos de manera dinámica el agente de C2 que obtuvimos previamente y evaluaremos formas de interactuar con él para entender su funcionamiento."/>
 
 
 
 <meta property="og:title" content="005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico" />
-<meta property="og:description" content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento." />
+<meta property="og:description" content="En este artículo analizaremos de manera dinámica el agente de C2 que obtuvimos previamente y evaluaremos formas de interactuar con él para entender su funcionamiento." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-02-12T12:03:49-05:00" />
@@ -176,7 +176,8 @@
 
     <div class="post-content">
       
-      <h2 id="1-introducción">
+      <p><em>This article is also available in <a href="/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/">english</a></em></p>
+<h2 id="1-introducción">
   1. Introducción
   <a href="#1-introducci%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
 </h2>
@@ -185,13 +186,13 @@
 <blockquote>
 <p><strong>Disclaimer</strong>: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.</p>
 </blockquote>
-<h2 id="2-análisis-dinámico-del-ejecutable">
-  2. Análisis dinámico del ejecutable
-  <a href="#2-an%c3%a1lisis-din%c3%a1mico-del-ejecutable" class="h-anchor" aria-hidden="true">#</a>
+<h2 id="2-análisis-dinámico-del-binario">
+  2. Análisis dinámico del binario
+  <a href="#2-an%c3%a1lisis-din%c3%a1mico-del-binario" class="h-anchor" aria-hidden="true">#</a>
 </h2>
-<h3 id="21-configurar-el-ambiente-y-establecer-conexión">
-  2.1 Configurar el ambiente y establecer conexión
-  <a href="#21-configurar-el-ambiente-y-establecer-conexi%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+<h3 id="21-configuración-del-ambiente-y-conexión-inicial">
+  2.1 Configuración del ambiente y conexión inicial
+  <a href="#21-configuraci%c3%b3n-del-ambiente-y-conexi%c3%b3n-inicial" class="h-anchor" aria-hidden="true">#</a>
 </h3>
 <p>Como parte del análisis estático identificamos que, luego de esperar unos segundos, el programa se intenta comunicar con la IP <em>162.245.191.217</em> en los puertos 9149, 15198, 17818, 27781 y 29224, iterando entre ellos hasta conseguir una conexión exitosa. Podemos comprobar que efectivamente el programa realiza dichos intentos de conexión utilizando <em>TCPView</em> o <em>Process Monitor</em>:</p>
 <p><img src="/img/005_TCPView1.png" alt="alt text" title="Connection in TCP View"></p>
@@ -261,11 +262,11 @@
 <p>Durante el análisis puede demorar mucho esperar a que se cumplan las condiciones necesarias para que el malware se comunique con el servidor, por lo que extraer la parte del código que queremos entender y utilizarla en otro programa nos puede ayudar a comprender qué está pasando de manera mas efectiva; para comprender bien cómo Python enviaba los mensajes y cómo .NET los recibía, hice un pequeño programa que me permitió validar la respuesta de cada etapa del proceso:
 <img src="/img/005-customdebug.png" alt="alt text" title="Debugging using Visual Studio"></p>
 <p>Una vez que logramos enviar información al agente en un &ldquo;idioma&rdquo; que entienda, implementar la lógica de recibir información del agente toma poco tiempo. Finalmente tenemos cómo enviar comandos al agente de Comando y Control y podemos verificar cómo se comporta en la práctica.</p>
-<h3 id="22-análisis-de-funciones-del-agente">
-  2.2 Análisis de funciones del agente
-  <a href="#22-an%c3%a1lisis-de-funciones-del-agente" class="h-anchor" aria-hidden="true">#</a>
+<h3 id="22-análisis-de-las-capacidades-del-agente">
+  2.2 Análisis de las capacidades del agente
+  <a href="#22-an%c3%a1lisis-de-las-capacidades-del-agente" class="h-anchor" aria-hidden="true">#</a>
 </h3>
-<p>Al igual que en el artículo anterior, analizaremos algunas funciones que ofrece el agente para verificar cómo se comportan durante su ejecución:</p>
+<p>Al igual que en el artículo anterior, analizaremos algunas capacidades que ofrece el agente para verificar cómo se comportan durante su ejecución:</p>
 <h4 id="221-listar-procesos">
   2.2.1 Listar procesos
   <a href="#221-listar-procesos" class="h-anchor" aria-hidden="true">#</a>
@@ -308,9 +309,9 @@
   <iframe src="https://www.youtube.com/embed/9e0o0iAIYeo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
 </div>
 </p>
-<h3 id="23-demo-de-servidor-de-c2-funcional">
-  2.3 Demo de servidor de C2 funcional
-  <a href="#23-demo-de-servidor-de-c2-funcional" class="h-anchor" aria-hidden="true">#</a>
+<h3 id="23-demo-de-servidor-de-c2">
+  2.3 Demo de servidor de C2
+  <a href="#23-demo-de-servidor-de-c2" class="h-anchor" aria-hidden="true">#</a>
 </h3>
 <p>Luego de analizar algunas de las capacidades que ofrecía el agente (facilitado por la fácil decompilación de .NET), logré implementar un servidor capaz de comunicarse con el agente basandome únicamente en el código de este; dentro de las funcionalidades que implementé están la de listar procesos, obtener información del sistema, ejecutar comandos, establecer persistencia, listar archivos en un directorio, y descargar y ejecutar binarios.</p>
 <p>En el siguiente video se muestran algunas de las capacidades:
@@ -319,7 +320,7 @@
   <iframe src="https://www.youtube.com/embed/kr9-kPQhMEo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
 </div>
 </p>
-<p>Como se aprecia en el video, el agente establece cada minuto una comunicación con el servidor de Comando y Control, lo que permite al atacante enviar distintos comandos; dentro de los revisados, está la descarga y ejecución de binarios, donde se descargó <a href="https://github.com/gentilkiwi/mimikatz"><em>Mimikatz</em></a>, el listado de procesos de sistema, donde identificamos el proceso de <em>Mimikatz</em>, y el de obtener información del sistema, donde obtuvimos el nombre de la máquina, el usuario, la versión de Windows, así como la ruta donde se está ejecutando el agente.</p>
+<p>Como se aprecia en el video, el agente establece cada minuto una comunicación con el servidor de Comando y Control, lo que permite al atacante enviar distintos comandos; dentro de los revisados, está la descarga y ejecución de binarios, donde se descargó y ejecutó <a href="https://github.com/gentilkiwi/mimikatz"><em>Mimikatz</em></a>, el listado de procesos de sistema, donde identificamos el proceso de <em>Mimikatz</em>, y el de obtener información del sistema, donde obtuvimos el nombre de la máquina, el usuario, la versión de Windows, así como la ruta donde se está ejecutando el agente.</p>
 <p>Adicionalmente, se evidencia cómo aparecen dichas actividades en herramientas como <em>Process Explorer</em>, <em>Process Monitor</em>, <em>TCP View</em> y <em>Wireshark</em>, lo que nos permite entender a detalle las acciones gatilladas por cada capacidad del malware.</p>
 <p>En el video no se muestran todas las capacidades implementadas, así como otras que ofrece el agente que no fueron adecuadas al servidor falso (eliminar archivos, sacar capturas de pantalla, etc), por lo que recomiendo a los lectores hacer ingeniería inversa al binario e implementarlas como forma de aprendizaje.</p>
 <h2 id="3-conclusiones">

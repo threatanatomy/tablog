@@ -3,8 +3,10 @@ title = '005 - Analizando un agente de C2 - Parte 3: el agente - Análisis diná
 date = 2024-02-12T12:03:49-05:00
 draft = false
 translationKey = '005-dotnet-agent'
-description = 'En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento.'
+description = 'En este artículo analizaremos de manera dinámica el agente de C2 que obtuvimos previamente y evaluaremos formas de interactuar con él para entender su funcionamiento.'
 +++
+
+*This article is also available in [english](/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/)*
 
 ## 1. Introducción
 
@@ -14,9 +16,9 @@ En esta sección analizaremos de manera dinámica el binario para validar que nu
 
 > **Disclaimer**: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.
 
-## 2. Análisis dinámico del ejecutable
+## 2. Análisis dinámico del binario
 
-### 2.1 Configurar el ambiente y establecer conexión
+### 2.1 Configuración del ambiente y conexión inicial
 
 Como parte del análisis estático identificamos que, luego de esperar unos segundos, el programa se intenta comunicar con la IP *162.245.191.217* en los puertos 9149, 15198, 17818, 27781 y 29224, iterando entre ellos hasta conseguir una conexión exitosa. Podemos comprobar que efectivamente el programa realiza dichos intentos de conexión utilizando *TCPView* o *Process Monitor*:
 
@@ -108,9 +110,9 @@ Una vez que logramos enviar información al agente en un "idioma" que entienda, 
 
 
 
-### 2.2 Análisis de funciones del agente
+### 2.2 Análisis de las capacidades del agente
 
-Al igual que en el artículo anterior, analizaremos algunas funciones que ofrece el agente para verificar cómo se comportan durante su ejecución:
+Al igual que en el artículo anterior, analizaremos algunas capacidades que ofrece el agente para verificar cómo se comportan durante su ejecución:
 
 #### 2.2.1 Listar procesos
 
@@ -155,14 +157,14 @@ Para mi prueba inicial, hice que la aplicación descargue y ejecute la calculado
 Sin embargo, dado que ejecutar la calculadora es aburrido, decidí descargar Wannacry simulando lo que podría hacer un atacante real:
 {{< youtube 9e0o0iAIYeo >}}
 
-### 2.3 Demo de servidor de C2 funcional
+### 2.3 Demo de servidor de C2
 
 Luego de analizar algunas de las capacidades que ofrecía el agente (facilitado por la fácil decompilación de .NET), logré implementar un servidor capaz de comunicarse con el agente basandome únicamente en el código de este; dentro de las funcionalidades que implementé están la de listar procesos, obtener información del sistema, ejecutar comandos, establecer persistencia, listar archivos en un directorio, y descargar y ejecutar binarios.
 
 En el siguiente video se muestran algunas de las capacidades:
 {{< youtube kr9-kPQhMEo >}}
 
-Como se aprecia en el video, el agente establece cada minuto una comunicación con el servidor de Comando y Control, lo que permite al atacante enviar distintos comandos; dentro de los revisados, está la descarga y ejecución de binarios, donde se descargó [*Mimikatz*](https://github.com/gentilkiwi/mimikatz), el listado de procesos de sistema, donde identificamos el proceso de *Mimikatz*, y el de obtener información del sistema, donde obtuvimos el nombre de la máquina, el usuario, la versión de Windows, así como la ruta donde se está ejecutando el agente.
+Como se aprecia en el video, el agente establece cada minuto una comunicación con el servidor de Comando y Control, lo que permite al atacante enviar distintos comandos; dentro de los revisados, está la descarga y ejecución de binarios, donde se descargó y ejecutó [*Mimikatz*](https://github.com/gentilkiwi/mimikatz), el listado de procesos de sistema, donde identificamos el proceso de *Mimikatz*, y el de obtener información del sistema, donde obtuvimos el nombre de la máquina, el usuario, la versión de Windows, así como la ruta donde se está ejecutando el agente.
 
 Adicionalmente, se evidencia cómo aparecen dichas actividades en herramientas como *Process Explorer*, *Process Monitor*, *TCP View* y *Wireshark*, lo que nos permite entender a detalle las acciones gatilladas por cada capacidad del malware.
 

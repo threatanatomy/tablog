@@ -328,7 +328,7 @@ The analyzed malware has all the characteristics of a Command and Control agent:
 
 The malware uses a couple of techniques to bypass static code analysis tools: the use of underscores to alter variable names/registry keys, as well as the use of a byte array to store an IP instead of storing it in plaintext; however, the fact that it has been developed in .NET allows for easy decompilation and analysis.
 
-In the next article I will elaborate on how someone can interact with the malware as part of their analysis, and thus evidence whether it has any unidentified behavior not identified as part of the static analysis.
+[In the next article](/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/) I will elaborate on how someone can interact with the malware as part of their analysis, and thus evidence whether it has any unidentified behavior not identified as part of the static analysis.
 
 ## 4. MITRE ATT&CK Mapping
 
