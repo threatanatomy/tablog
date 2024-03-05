@@ -151,7 +151,7 @@ For my initial test, I had the application download and execute the Windows calc
 ![alt text](/img/005-calc.png "Opening a calculator")
 
 However, since running the calculator is boring, I decided to download Wannacry simulating what a real attacker might do:
-{{< youtube 9e0o0iAIYeo >}}
+{{< youtube BXkm-5nxo2A >}}
 
 ### 2.3 C2 server demo 
 
