@@ -20,6 +20,16 @@
     <url>
       <loc>https://threatanatomy.io/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/</loc>
       <lastmod>2024-02-12T12:03:49-05:00</lastmod>
+      <xhtml:link
+                  rel="alternate"
+                  hreflang="en"
+                  href="https://threatanatomy.io/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/"
+                  />
+      <xhtml:link
+                  rel="alternate"
+                  hreflang="es"
+                  href="https://threatanatomy.io/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/"
+                  />
     </url>
   
     <url>
