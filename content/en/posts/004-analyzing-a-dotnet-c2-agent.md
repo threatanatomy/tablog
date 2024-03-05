@@ -350,6 +350,6 @@ In the next article I will elaborate on how someone can interact with the malwar
 
 | IOC                                                                           | Tipo              | Descripción                                |
 |-------------------------------------------------------------------------------|-------------------|--------------------------------------------|
-| 59211a4e0f27d70c659 636746b61945a                                              | Hash MD5          | C2 agent hash                              |
+| 59211a4e0f27d70c659 636746b61945a                                              | MD5 Hash          | C2 agent hash                              |
 | 162.245.191.217                                                               | IP                | IP that the agent calls                    |
-| HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr | Llave de registro | Registry key used to establish persistence |
+| HKEY\CURRENT \USER\Software \Microsoft\Windows \CurrentVersion \Run\haijwivetsgVr | Registry key | Registry key used to establish persistence |
