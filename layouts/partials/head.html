@@ -12,6 +12,10 @@
 <link rel="canonical" href="{{ .Permalink }}" />
 <link rel="me" href="https://infosec.exchange/@stapia"/>
 
+{{ if .IsTranslated }}{{ range .Translations }}
+<link rel="alternate" hreflang="{{ .Language.Lang }}" href="https://threatanatomy.io{{ .Permalink }}" />{{ end }}
+<link rel="alternate" hreflang="{{ .Language.Lang }}" href="https://threatanatomy.io{{ .Permalink }}" />{{ end }}
+
 <!-- head custom -->
 {{- partial "prepended_head.html" . }}
 
