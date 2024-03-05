@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    
+      <title>
+        005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento."
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/" />
+<link rel="me" href="https://infosec.exchange/@stapia"/>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/style.css" />
+
+<link rel="stylesheet" href="/style.css" />
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png" />
+<link rel="shortcut icon" href="/img/favicon.png" />
+
+
+<link href="/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico"/>
+<meta name="twitter:description" content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento."/>
+
+
+
+<meta property="og:title" content="005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico" />
+<meta property="og:description" content="En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2024-02-12T12:03:49-05:00" />
+<meta property="article:modified_time" content="2024-02-12T12:03:49-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Threat Anatomy Blog</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/es/contact">Contacto</a></li>
+        
+      
+      
+      
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/es/contact">Contacto</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+        <span>
+        <ul class="i18n">
+          
+        </ul>
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <article class="post">
+    <h1 class="post-title">005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico</h1>
+    <div class="post-meta">
+      
+        <time class="post-date">
+          2024-02-12
+        </time>
+
+        
+          
+        
+      
+
+      
+
+
+      
+        <span class="post-read-time"
+          >— 7 min de lectura</span
+        >
+      
+    </div>
+
+    
+
+    
+
+    <div class="post-content">
+      
+      <h2 id="1-introducción">
+  1. Introducción
+  <a href="#1-introducci%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>En <a href="/es/posts/004-analyzing-a-dotnet-c2-agent/">la segunda parte de este artículo</a> analizamos de manera estática el binario .exe que obtuvimos de una macro maliciosa; en dicho análisis, identificamos que el programa había sido desarrollado en .NET, lo que facilitó el análisis debido a que el lenguaje intermedio (IL) que utiliza dicho framework es muy similar al código fuente original, lo que permite que sea facilmente decompilado.</p>
+<p>En esta sección analizaremos de manera dinámica el binario para validar que nuestro análisis estático haya sido el correcto, así como desarrollar formas de interactuar con el agente.</p>
+<blockquote>
+<p><strong>Disclaimer</strong>: Ejecutar malware en un dispositivo personal/corporativo puede poner en riesgo tu información/la información de tu empresa. Nunca ejecutes malware en un dispositivo que no ha sido específicamente configurado para el análisis.</p>
+</blockquote>
+<h2 id="2-análisis-dinámico-del-ejecutable">
+  2. Análisis dinámico del ejecutable
+  <a href="#2-an%c3%a1lisis-din%c3%a1mico-del-ejecutable" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<h3 id="21-configurar-el-ambiente-y-establecer-conexión">
+  2.1 Configurar el ambiente y establecer conexión
+  <a href="#21-configurar-el-ambiente-y-establecer-conexi%c3%b3n" class="h-anchor" aria-hidden="true">#</a>
+</h3>
+<p>Como parte del análisis estático identificamos que, luego de esperar unos segundos, el programa se intenta comunicar con la IP <em>162.245.191.217</em> en los puertos 9149, 15198, 17818, 27781 y 29224, iterando entre ellos hasta conseguir una conexión exitosa. Podemos comprobar que efectivamente el programa realiza dichos intentos de conexión utilizando <em>TCPView</em> o <em>Process Monitor</em>:</p>
+<p><img src="/img/005_TCPView1.png" alt="alt text" title="Connection in TCP View"></p>
+<p><img src="/img/005_Procmon1.png" alt="alt text" title="Connection in Process Monitor"></p>
+<p>Dado que el binario necesita una respuesta exitosa del servidor para continuar, podemos proceder de dos formas:</p>
+<ol>
+<li>Modificar la IP de destino en ejecución utilizando DNSpy</li>
+<li>Modificar Remnux para que intercepte el tráfico dirgido al servidor</li>
+</ol>
+<p>En esta ocasión opté por la segunda opción, la cual puede ser implementada modificando las reglas de firwall de Remnux; para ello, podemos redirigir todo el tráfico con destino a la IP del servidor a un puerto en específico en Remnux:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo iptables -t nat -A PREROUTING -i ens33 -p tcp -d 162.245.191.217  -j DNAT --to-destination 10.0.0.3:4321
+</span></span></code></pre></div><p>Como parte del análisis estático identificamos que el programa obtiene una respuesta del servidor, la separa en base al caracter &ldquo;=&rdquo; y en base a la primera parte del mensaje (lo que está antes del caracter &ldquo;=&rdquo;) realiza una acción. Podemos hacer una prueba enviando un valor que sabemos que el programa entiende y ver si se sigue el camino esperado:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> socket
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> struct
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message_content <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;thyTumb=LoremIpsumTest&#34;</span>
+</span></span><span style="display:flex;"><span>print(message_content)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>HOST <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0.0.0.0&#39;</span>
+</span></span><span style="display:flex;"><span>PORT <span style="color:#f92672">=</span> <span style="color:#ae81ff">4321</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> socket<span style="color:#f92672">.</span>socket(socket<span style="color:#f92672">.</span>AF_INET, socket<span style="color:#f92672">.</span>SOCK_STREAM) <span style="color:#66d9ef">as</span> s:
+</span></span><span style="display:flex;"><span>    s<span style="color:#f92672">.</span>bind((HOST, PORT))
+</span></span><span style="display:flex;"><span>    s<span style="color:#f92672">.</span>listen()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Server is listening...&#34;</span>)
+</span></span><span style="display:flex;"><span>    conn, addr <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>accept()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> conn:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;Connected by&#39;</span>, addr)
+</span></span><span style="display:flex;"><span>        conn<span style="color:#f92672">.</span>sendall(message_content<span style="color:#f92672">.</span>encode())
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Data sent to the client.&#34;</span>)
+</span></span></code></pre></div><p><img src="/img/005_expected.png" alt="alt text" title="Message to send"></p>
+<p>Sin embargo, rápidamente nos damos cuenta que enviar un mensaje no será tan simple; el agente implementa lógica customizada para determinar el tamaño del mensaje y así saber cuando dejar de &ldquo;leer&rdquo; datos:
+<img src="/img/005-breakpoint.png" alt="alt text" title="Identification logic"></p>
+<p>Adicionalmente, debido a diferencias en cómo C# (en lo que está escrito el agente) y Python (el servidor que estamos usando para suplantar al servidor real) manejan mensajes TCP, es necesario hacer adecuaciones en el código para que el agente pueda entender el mensaje:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> socket
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> struct
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message_content <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;thyQumb=LoremIpsumTest&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message_length <span style="color:#f92672">=</span> len(message_content<span style="color:#f92672">.</span>encode())
+</span></span><span style="display:flex;"><span>packed_length <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>pack(<span style="color:#e6db74">&#39;!I&#39;</span>, message_length)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>reversed_length <span style="color:#f92672">=</span> packed_length[::<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>reversed_length <span style="color:#f92672">=</span> reversed_length <span style="color:#f92672">+</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\x00</span><span style="color:#e6db74">&#39;</span> <span style="color:#f92672">*</span> (<span style="color:#ae81ff">5</span> <span style="color:#f92672">-</span> len(reversed_length))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>message_to_send <span style="color:#f92672">=</span> reversed_length <span style="color:#f92672">+</span> message_content<span style="color:#f92672">.</span>encode()
+</span></span><span style="display:flex;"><span>print(message_to_send)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>HOST <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0.0.0.0&#39;</span>  
+</span></span><span style="display:flex;"><span>PORT <span style="color:#f92672">=</span> <span style="color:#ae81ff">4321</span>     
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> socket<span style="color:#f92672">.</span>socket(socket<span style="color:#f92672">.</span>AF_INET, socket<span style="color:#f92672">.</span>SOCK_STREAM) <span style="color:#66d9ef">as</span> s:
+</span></span><span style="display:flex;"><span>    s<span style="color:#f92672">.</span>bind((HOST, PORT))
+</span></span><span style="display:flex;"><span>    s<span style="color:#f92672">.</span>listen()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#34;Server is listening...&#34;</span>)
+</span></span><span style="display:flex;"><span>    conn, addr <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>accept()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> conn:
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;Connected by&#39;</span>, addr)
+</span></span><span style="display:flex;"><span>        conn<span style="color:#f92672">.</span>sendall(message_to_send)
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Data sent to the client.&#34;</span>)
+</span></span></code></pre></div><p>Con dichas modificaciones verificamos que el mensaje llega correctamente al agente:
+<img src="/img/005-fixedcode.png" alt="alt text" title="Agent receives response"></p>
+<p>Durante el análisis puede demorar mucho esperar a que se cumplan las condiciones necesarias para que el malware se comunique con el servidor, por lo que extraer la parte del código que queremos entender y utilizarla en otro programa nos puede ayudar a comprender qué está pasando de manera mas efectiva; para comprender bien cómo Python enviaba los mensajes y cómo .NET los recibía, hice un pequeño programa que me permitió validar la respuesta de cada etapa del proceso:
+<img src="/img/005-customdebug.png" alt="alt text" title="Debugging using Visual Studio"></p>
+<p>Una vez que logramos enviar información al agente en un &ldquo;idioma&rdquo; que entienda, implementar la lógica de recibir información del agente toma poco tiempo. Finalmente tenemos cómo enviar comandos al agente de Comando y Control y podemos verificar cómo se comporta en la práctica.</p>
+<h3 id="22-análisis-de-funciones-del-agente">
+  2.2 Análisis de funciones del agente
+  <a href="#22-an%c3%a1lisis-de-funciones-del-agente" class="h-anchor" aria-hidden="true">#</a>
+</h3>
+<p>Al igual que en el artículo anterior, analizaremos algunas funciones que ofrece el agente para verificar cómo se comportan durante su ejecución:</p>
+<h4 id="221-listar-procesos">
+  2.2.1 Listar procesos
+  <a href="#221-listar-procesos" class="h-anchor" aria-hidden="true">#</a>
+</h4>
+<p>Al recibir el comando &ldquo;geyTtavs&rdquo;, nos esperamos que se envíe el ID de cada proceso, seguido por el nombre de cada proceso siguiendo el patrón
+<em>IDProceso1&gt;NombreProceso1&gt;0&gt;&lt;IDProceso2&gt;NombreProceso2&gt;0&gt;&lt;</em>. Utilizando Wireshark, podemos comprobar que efectívamente se envía la información de dicha manera:
+<img src="/img/005-listarProcesos.png" alt="alt text" title="DNSpy view of parsing processess">
+<img src="/img/005-listarProcesosWireshark.png" alt="alt text" title="Wireshark view of parsing processess"></p>
+<p>En el servidor, podemos modificar nuestro script para parsear mejor la información recibida:
+<img src="/img/005-listarProcesosParseado.png" alt="alt text" title="Server view of parsing processess">
+<img src="/img/005-taskexplorer.png" alt="alt text" title="Server view of parsing processess"></p>
+<h4 id="222-establecer-persistencia">
+  2.2.2 Establecer persistencia
+  <a href="#222-establecer-persistencia" class="h-anchor" aria-hidden="true">#</a>
+</h4>
+<p>Otro de las funciones que ofrecía el agente de C2 que identificamos durante el análisis estático es la de establecer persistencia, la cual podemos comprobar utilizando <em>Autoruns</em> y <em>Process monitor</em>
+<img src="/img/005-persistencia.png" alt="alt text" title="Command to establish persistence">
+<img src="/img/005-persistenciaPM.png" alt="alt text" title="Persistence through Registry key">
+<img src="/img/005-persistencia2.png" alt="alt text" title="Persistence through Registry key"></p>
+<p>El agente de C2 utiliza la llave de registro <em>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</em> para definir que el agente se ejecute con cada inicio de sesión (<a href="https://attack.mitre.org/techniques/T1547/001/">técnica T1547.001 en MITRE ATT&amp;CK</a>).</p>
+<h4 id="223-exfiltrar-archivos">
+  2.2.3 Exfiltrar archivos
+  <a href="#223-exfiltrar-archivos" class="h-anchor" aria-hidden="true">#</a>
+</h4>
+<p>El agente ofrece al atacante la capacidad de exfiltrar archivos mediante el comando &ldquo;afyTile&rdquo;, para lo cual recibe la ruta del archivo y procede a enviarlo al servidor de C2; podemos actualizar nuestro servidor para interactuar con dicha función y confirmar la lectura del archivo usando <em>Wireshark</em> y <em>Process Monitor</em>:
+<img src="/img/005-exfil1.png" alt="alt text" title="File exfiltrated to C2">
+<img src="/img/005-exfil2.png" alt="alt text" title="File read on filesystem">
+<img src="/img/005-exfil3.png" alt="alt text" title="Data sent through Wireshark"></p>
+<h4 id="224-descargar-y-ejecutar-programas">
+  2.2.4 Descargar y ejecutar programas
+  <a href="#224-descargar-y-ejecutar-programas" class="h-anchor" aria-hidden="true">#</a>
+</h4>
+<p>Una de las capacidades mas interesantes que ofrece el agente es la de descargar y ejecutar binarios del servidor de C2, por lo que un atacante puede ampliar su ataque utilizando capacidades no inicialmente disponibles en el malware. Uno de los casos donde constantemente vemos dicho tipo de técnica es con las <a href="https://blog.google/threat-analysis-group/exposing-initial-access-broker-ties-conti/">organizaciones que</a> <a href="https://www.darkreading.com/threat-intelligence/-gold-melody-access-broker-unpatched-servers">despliegan</a> <a href="https://www.blackberry.com/us/en/solutions/endpoint-security/ransomware-protection/lockbit">ransomware</a>, en las que organizaciones conocidas como <em>Brokers de Acceso Inicial (IAB)</em> venden el acceso que consiguieron en una empresa a organizaciones de Ransomware como Lockbit y Conti.</p>
+<p><img src="/img/005-download.png" alt="alt text" title="Download and execute"></p>
+<p>Para mi prueba inicial, hice que la aplicación descargue y ejecute la calculadora de Windows:
+<img src="/img/005-calc.png" alt="alt text" title="Opening a calculator"></p>
+<p>Sin embargo, dado que ejecutar la calculadora es aburrido, decidí descargar Wannacry simulando lo que podría hacer un atacante real:
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/9e0o0iAIYeo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+</p>
+<h3 id="23-demo-de-servidor-de-c2-funcional">
+  2.3 Demo de servidor de C2 funcional
+  <a href="#23-demo-de-servidor-de-c2-funcional" class="h-anchor" aria-hidden="true">#</a>
+</h3>
+<p>Luego de analizar algunas de las capacidades que ofrecía el agente (facilitado por la fácil decompilación de .NET), logré implementar un servidor capaz de comunicarse con el agente basandome únicamente en el código de este; dentro de las funcionalidades que implementé están la de listar procesos, obtener información del sistema, ejecutar comandos, establecer persistencia, listar archivos en un directorio, y descargar y ejecutar binarios.</p>
+<p>En el siguiente video se muestran algunas de las capacidades:
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="https://www.youtube.com/embed/kr9-kPQhMEo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
+</div>
+</p>
+<p>Como se aprecia en el video, el agente establece cada minuto una comunicación con el servidor de Comando y Control, lo que permite al atacante enviar distintos comandos; dentro de los revisados, está la descarga y ejecución de binarios, donde se descargó <a href="https://github.com/gentilkiwi/mimikatz"><em>Mimikatz</em></a>, el listado de procesos de sistema, donde identificamos el proceso de <em>Mimikatz</em>, y el de obtener información del sistema, donde obtuvimos el nombre de la máquina, el usuario, la versión de Windows, así como la ruta donde se está ejecutando el agente.</p>
+<p>Adicionalmente, se evidencia cómo aparecen dichas actividades en herramientas como <em>Process Explorer</em>, <em>Process Monitor</em>, <em>TCP View</em> y <em>Wireshark</em>, lo que nos permite entender a detalle las acciones gatilladas por cada capacidad del malware.</p>
+<p>En el video no se muestran todas las capacidades implementadas, así como otras que ofrece el agente que no fueron adecuadas al servidor falso (eliminar archivos, sacar capturas de pantalla, etc), por lo que recomiendo a los lectores hacer ingeniería inversa al binario e implementarlas como forma de aprendizaje.</p>
+<h2 id="3-conclusiones">
+  3. Conclusiones
+  <a href="#3-conclusiones" class="h-anchor" aria-hidden="true">#</a>
+</h2>
+<p>Cuando inicié el análisis de este malware solo sabía que contenía una macro maliciosa, mas no que embebía un agente de Comando y Control, el cual sería capaz de decompilar, analizar, y realizar una POC para interactuar con él. El malware obtenido fue la oportunidad perfecta para practicar distintas técnicas de análisis, tanto estático como dinámico, permitiendo realizar ingeniería reversa sin tener que leer código ensamblador.</p>
+<p>En un futuro artículo analizaré un nuevo malware, idealmente uno que no esté basado en Macros ni .NET para documentar nuevas técnicas de análisis; aun así, independientemente de la herramienta de análisis, la metodoloǵia es la misma, por lo que invito a los lectores a replicar lo realizado y así practicar.</p>
+<p>De tener algún feedback o sugerencia no olvides escribirme a <a href="mailto:contact@threatanatomy.io">contact@threatanatomy.io</a>!</p>
+
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Leer otras publicaciones</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+            
+              <span class="button next">
+                <a href="/es/posts/004-analyzing-a-dotnet-c2-agent/">
+                  <span class="button__text">004 - Analizando un agente de C2 - Parte 2: el agente - Análisis estático</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        
+
+      
+    
+  </article>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Threat Anatomy Blog</span
+    >
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span>© 2024 Powered by <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span>
+        <span><a href="https://github.com/panr/hugo-theme-hello-friend" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+    
+  </div>
+</footer>
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>

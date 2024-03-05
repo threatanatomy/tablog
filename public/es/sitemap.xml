@@ -4,7 +4,7 @@
   
     <url>
       <loc>https://threatanatomy.io/es/</loc>
-      <lastmod>2023-12-26T12:03:49-05:00</lastmod>
+      <lastmod>2024-02-12T12:03:49-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
@@ -18,23 +18,13 @@
     </url>
   
     <url>
-      <loc>https://threatanatomy.io/es/posts/004-analyzing-a-dotnet-c2-agent/</loc>
-      <lastmod>2023-12-26T12:03:49-05:00</lastmod>
-      <xhtml:link
-                  rel="alternate"
-                  hreflang="en"
-                  href="https://threatanatomy.io/en/posts/004-analyzing-a-dotnet-c2-agent/"
-                  />
-      <xhtml:link
-                  rel="alternate"
-                  hreflang="es"
-                  href="https://threatanatomy.io/es/posts/004-analyzing-a-dotnet-c2-agent/"
-                  />
+      <loc>https://threatanatomy.io/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/</loc>
+      <lastmod>2024-02-12T12:03:49-05:00</lastmod>
     </url>
   
     <url>
       <loc>https://threatanatomy.io/es/posts/</loc>
-      <lastmod>2023-12-26T12:03:49-05:00</lastmod>
+      <lastmod>2024-02-12T12:03:49-05:00</lastmod>
       <xhtml:link
                   rel="alternate"
                   hreflang="en"
@@ -44,6 +34,21 @@
                   rel="alternate"
                   hreflang="es"
                   href="https://threatanatomy.io/es/posts/"
+                  />
+    </url>
+  
+    <url>
+      <loc>https://threatanatomy.io/es/posts/004-analyzing-a-dotnet-c2-agent/</loc>
+      <lastmod>2024-01-05T12:03:49-05:00</lastmod>
+      <xhtml:link
+                  rel="alternate"
+                  hreflang="en"
+                  href="https://threatanatomy.io/en/posts/004-analyzing-a-dotnet-c2-agent/"
+                  />
+      <xhtml:link
+                  rel="alternate"
+                  hreflang="es"
+                  href="https://threatanatomy.io/es/posts/004-analyzing-a-dotnet-c2-agent/"
                   />
     </url>
   

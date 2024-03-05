@@ -1,6 +1,6 @@
 +++
-title = '004 - Analyzing a C2 agent - Part 2: the agent'
-date = 2023-12-26T12:05:50-05:00
+title = '004 - Analyzing a C2 agent - Part 2: the agent - Static analysis'
+date = 2024-01-05T12:03:49-05:00
 draft = false
 translationKey = '004-dotnet-agent'
 description = 'In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it.'

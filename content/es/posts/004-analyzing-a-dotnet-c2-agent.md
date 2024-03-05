@@ -1,6 +1,6 @@
 +++
-title = '004 - Analizando un agente de C2 - Parte 2: el agente'
-date = 2023-12-26T12:03:49-05:00
+title = '004 - Analizando un agente de C2 - Parte 2: el agente - Análisis estático'
+date = 2024-01-05T12:03:49-05:00
 draft = false
 translationKey = '004-dotnet-agent'
 description = 'En este artículo, continuación directa del artículo anterior, analizamos un agente de C2 desarrollado en .NET para identificar cómo evade defensas, las capacidades que ofrece, y cómo podemos obtener indicadores de compromiso de este.'
@@ -334,7 +334,8 @@ El malware analizado tiene todas las características de un agente de Comando y 
 
 El malware utiliza un par de técnicas para evalidar herramientas de análisis de código estático: uso de subguiones para alterar nombres de variables/llaves de registro, así como el uso de un arreglo de bytes para almacenar una IP en vez de almacenarla en plano; aún así, el que haya sido desarrollado en .NET permite su fácil decompilación y análisis.
 
-En el próximo artículo detallaré como alguien puede interactuar con el malware como parte de su análisis, y así evidenciar si tiene alǵun comportamiento no identificado como parte del análisis estático.
+[En el próximo artículo](/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/) detallaré como alguien puede interactuar con el malware como parte de su análisis, y así evidenciar si tiene alǵun comportamiento no identificado como parte del análisis estático.
+
 
 ## 4. Mapeo MITRE ATT&CK
 

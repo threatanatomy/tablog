@@ -9,15 +9,35 @@
     <description>Recent content in Posts on </description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 26 Dec 2023 12:03:49 -0500</lastBuildDate>
+    <lastBuildDate>Mon, 12 Feb 2024 12:03:49 -0500</lastBuildDate>
     
 	<atom:link href="/es/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>004 - Analizando un agente de C2 - Parte 2: el agente</title>
+      <title>005 - Analizando un agente de C2 - Parte 3: el agente - Análisis dinámico</title>
+      <link>/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/</link>
+      <pubDate>Mon, 12 Feb 2024 12:03:49 -0500</pubDate>
+      
+      <guid>/es/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/</guid>
+      <description>
+        
+          
+          
+          
+        
+        
+        
+          En este artículo analizaremos de manera dinámica el agente de C2 y evaluaremos formas de interactuar con él para entender su funcionamiento.
+          
+        
+        </description>
+    </item>
+    
+    <item>
+      <title>004 - Analizando un agente de C2 - Parte 2: el agente - Análisis estático</title>
       <link>/es/posts/004-analyzing-a-dotnet-c2-agent/</link>
-      <pubDate>Tue, 26 Dec 2023 12:03:49 -0500</pubDate>
+      <pubDate>Fri, 05 Jan 2024 12:03:49 -0500</pubDate>
       
       <guid>/es/posts/004-analyzing-a-dotnet-c2-agent/</guid>
       <description>
