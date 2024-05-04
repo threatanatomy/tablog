@@ -47,19 +47,20 @@
 <link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
 
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="002 - Analizando una macro maliciosa"/>
-<meta name="twitter:description" content="En este artículo analizamos desde 0 una macro maliciosa que tiene embebida una bind shell utilizando técnicas de análisis estático y dinámico."/>
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="002 - Analizando una macro maliciosa">
+<meta name="twitter:description" content="En este artículo analizamos desde 0 una macro maliciosa que tiene embebida una bind shell utilizando técnicas de análisis estático y dinámico.">
 
 
 
-<meta property="og:title" content="002 - Analizando una macro maliciosa" />
-<meta property="og:description" content="En este artículo analizamos desde 0 una macro maliciosa que tiene embebida una bind shell utilizando técnicas de análisis estático y dinámico." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="/es/posts/002-analyzing-a-malicious-macro/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-12-06T12:08:00-05:00" />
-<meta property="article:modified_time" content="2023-12-06T12:08:00-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
-
+<meta property="og:url" content="/es/posts/002-analyzing-a-malicious-macro/">
+  <meta property="og:site_name" content="Threat Anatomy Blog">
+  <meta property="og:title" content="002 - Analizando una macro maliciosa">
+  <meta property="og:description" content="En este artículo analizamos desde 0 una macro maliciosa que tiene embebida una bind shell utilizando técnicas de análisis estático y dinámico.">
+  <meta property="og:locale" content="es">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-12-06T12:08:00-05:00">
+    <meta property="article:modified_time" content="2023-12-06T12:08:00-05:00">
 
 
 
@@ -237,7 +238,7 @@
 </tr>
 </tbody>
 </table>
-<p><img src="/img/002-hashesdocm.png" alt="alt text" title="Hashes docm"></p>
+<p><img alt="alt text" src="/img/002-hashesdocm.png" title="Hashes docm"></p>
 <h3 id="22-análisis-del-archivo-con-olevba">
   2.2 Análisis del archivo con olevba
   <a href="#22-an%c3%a1lisis-del-archivo-con-olevba" class="h-anchor" aria-hidden="true">#</a>
@@ -245,7 +246,7 @@
 <p>Iniciamos el análisis con <a href="https://github.com/decalage2/oletools/wiki/olevba"><em>olevba</em></a>, programa que nos permite detectar y extraer información de archivos que contengan macros sin tener que ejecutar los archivos.</p>
 <p>Utilizando el parámetro -a podemos obtener un análisis inicial del archivo:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>olevba.exe -a .\ab518a86b77fe842821b50d182b9394d2a59d1c64183a37eb70a6cac100b39f8.docm
-</span></span></code></pre></div><p><img src="/img/002-olevba-a.png" alt="alt text" title="Olevba -a result"></p>
+</span></span></code></pre></div><p><img alt="alt text" src="/img/002-olevba-a.png" title="Olevba -a result"></p>
 <p>Como parte del análisis vemos que <em>olevba</em> identifica algunas cadenas de texto sospechosas, dentro de las cuales son de principal interés los siguientes:</p>
 <ol>
 <li>AutoOpen: función que se ejecuta al abrir el archivo, sin requerir interacción del usuario (fuera de habilitar las macros de estar deshabilitadas).</li>
@@ -261,9 +262,9 @@
 <li>Base64Decode(ByVal base64String): función que por el nombre parece decodificar un texto de Base64.</li>
 </ol>
 <p>Analizando la función AutoOpen, verificamos que al abrir el archivo .docm se itera por las propiedades del archivo buscando la propiedad &ldquo;Comments&rdquo;, extrae un valor de esa propiedad, obtiene parte de ese valor, lo decodifica utilizando la función Base64Decode(ByVal base64String) y se pasa como parámetro a las funciones ExecuteForWindows(code)/ExecuteForOSX(code), <a href="https://learn.microsoft.com/en-us/office/vba/Language/Concepts/Getting-Started/compiler-constants">dependiendo del sistema operativo</a>:</p>
-<p><img src="/img/002-olevba-autoOpen.png" alt="alt text" title="AutoOpen"></p>
+<p><img alt="alt text" src="/img/002-olevba-autoOpen.png" title="AutoOpen"></p>
 <p>Al ver las propiedades del archivo, en una primera vista no se visualiza ningún comentario; sin embargo, al hacerle doble click a la propiedad podemos visualizar el contenido:</p>
-<p><img src="/img/002-comments.png" alt="alt text" title="Comments property"></p>
+<p><img alt="alt text" src="/img/002-comments.png" title="Comments property"></p>
 <p>Si quisiesemos extraer el comentario de manera programática, podemos usar powershell:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span><span style="color:#75715e">#Asignamos el archivo a una variable</span>
 </span></span><span style="display:flex;"><span>$file = <span style="color:#e6db74">&#34;C:\Analisis\ab518a86b77fe842821b50d182b9394d2a59d1c64183a37eb70a6cac100b39f8.docm&#34;</span>
@@ -280,15 +281,15 @@
 </span></span><span style="display:flex;"><span><span style="color:#75715e">#Guardamos el contenido de la propiedad en un archivo de texto</span>
 </span></span><span style="display:flex;"><span>$comments &gt; comments.txt
 </span></span></code></pre></div><p>Una vez identificado el input, procedemos a analizar la función que está haciendo el decodificado; dentro de la función, se visualiza un comentario asociado a Motobit, así como las URL que <em>olevba</em> identificó como IOC:</p>
-<p><img src="/img/002-decode.png" alt="alt text" title="Base64Decode"></p>
+<p><img alt="alt text" src="/img/002-decode.png" title="Base64Decode"></p>
 <p>Al no estar siendo utilizadas las URL, las descartamos como falsos positivos (debido a que hay otros programas que pueden contener dichas URL sin ser maliciosos necesariamente); al buscar el texto de los comentarios en Google identificamos el <a href="https://www.motobit.com/tips/detpg_Base64/">código de donde provino esa función</a>.</p>
 <p>Finalmente, analizamos las funciones a donde se pasa el texto obtenido de la propiedad &ldquo;Comments&rdquo; luego de ser decodificado:</p>
-<p><img src="/img/002-execute.png" alt="alt text" title="Execute methods"></p>
+<p><img alt="alt text" src="/img/002-execute.png" title="Execute methods"></p>
 <p>El caso de MacOS es sencillo: se pasa el texto al intérprete de Python para ser ejecutado; por el contrario, el de Windows si tiene mayor procesamiento que resulta interesante:</p>
 <ol>
 <li>Se asigna la variable tmp_folder a la <a href="https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/getspecialfolder-method">ruta almacenada en la variable de entorno TMP</a></li>
 </ol>
-<p><img src="/img/002-tmp.png" alt="alt text" title="TMP folder"></p>
+<p><img alt="alt text" src="/img/002-tmp.png" title="TMP folder"></p>
 <ol start="2">
 <li>Se crea un <a href="https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/gettempname-method">archivo con un nombre aleatorio</a> (tmp_name) en dicha ruta, y se le asigna la extensión .exe.</li>
 <li>Se ejecuta el archivo utilizando el objeto WScript.Shell</li>
@@ -302,9 +303,9 @@
   <a href="#31-ejecuci%c3%b3n-controlada-de-la-macro" class="h-anchor" aria-hidden="true">#</a>
 </h3>
 <p>Ahora que ya tenemos mayor detalle de lo que realiza la macro, podemos comprobar si el análisis fue el correcto al ejecutarla de manera controlada. Al abrir el archivo, vemos que tiene un mensaje indicando que el documento fue creado por una versión mas reciente de Microsoft Office, y que las macros deben ser habilitadas para poder visualizarlo; dicho mensaje es falso, y tiene como objetivo engañar al usuario para que habilite las macros y así, gatillar el código dentro de la función AutoOpen().</p>
-<p><img src="/img/002-archivoOffice.png" alt="alt text" title="Enable macros message"></p>
+<p><img alt="alt text" src="/img/002-archivoOffice.png" title="Enable macros message"></p>
 <p>Antes de hacer click en &ldquo;Habilitar contenido&rdquo; presionamos ALT+F11 para abrir el editor de Visual Basic, donde verificamos que están las mismas funciones que identificamos con <em>olevba</em>:</p>
-<p><img src="/img/002-macroview.png" alt="alt text" title="Visual Basic Editor"></p>
+<p><img alt="alt text" src="/img/002-macroview.png" title="Visual Basic Editor"></p>
 <p>Como vimos al analizar las funciones con <em>olevba</em>, se extrae el contenido de la propiedad &ldquo;Comments&rdquo; y se decodifica utilizando la función Base64Decode(); podemos obtener el archivo decodificado editando la función AutoOpen() y utilizando el siguiente código:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-vb" data-lang="vb"><span style="display:flex;"><span><span style="color:#66d9ef">Dim</span> n <span style="color:#f92672">As</span> <span style="color:#66d9ef">Integer</span>
 </span></span><span style="display:flex;"><span>n <span style="color:#f92672">=</span> FreeFile()
@@ -312,11 +313,11 @@
 </span></span><span style="display:flex;"><span>Print #n, orig_val
 </span></span><span style="display:flex;"><span>Close #n
 </span></span></code></pre></div><p>Para evitar que el programa se ejecute, podemos comentar las llamadas a ExecuteForOSX(code) y ExecuteForWindows(code):</p>
-<p><img src="/img/002-exportfile.png" alt="alt text" title="Export file"></p>
+<p><img alt="alt text" src="/img/002-exportfile.png" title="Export file"></p>
 <p>Analizando el archivo extraido con la herramienta <a href="https://www.winitor.com/download"><em>PEStudio</em></a>, verificamos que es un ejecutable (también se podría validar la cabecera del archivo, o utilizar el comando <em>file</em> de UNIX):</p>
-<p><img src="/img/002-orig_file.png" alt="alt text" title="File Analysis"></p>
+<p><img alt="alt text" src="/img/002-orig_file.png" title="File Analysis"></p>
 <p>Otra manera de obtener el binario (así como la ruta desde donde se ejecutará) es imprimiendo la variable <em>tmp_name</em> de la función ExecuteForWindows(code) y comentando la llamada a (&ldquo;WScript.Shell&rdquo;).Run para evitar ejecutar el binario:</p>
-<p><img src="/img/002-exforwin.png" alt="alt text" title="Export full path"></p>
+<p><img alt="alt text" src="/img/002-exforwin.png" title="Export full path"></p>
 <h3 id="32-análisis-del-binario-obtenido">
   3.2 Análisis del binario obtenido
   <a href="#32-an%c3%a1lisis-del-binario-obtenido" class="h-anchor" aria-hidden="true">#</a>
@@ -343,7 +344,7 @@
 </table>
 <p>Buscando el hash en <em>VirusTotal</em>, verificamos que <a href="https://www.virustotal.com/gui/file/21fe58c62243fcb030b1627233c77bde7319f7e932f4f581b8f1db49aa4c4f99">ya se tienen firmas por la mayoría de antivirus</a>.</p>
 <p>Abriendo el binario en <em>PEStudio</em> encontramos algunas cadenas de interés:</p>
-<p><img src="/img/002-pe.png" alt="alt text" title="PEStudio"></p>
+<p><img alt="alt text" src="/img/002-pe.png" title="PEStudio"></p>
 <p>El binario parece estar suplantando a ApacheBench. Adicionalmente, verificamos que contiene una cadena que hace referencia a &ldquo;C:\local0\asf\release\build-2.2.14\support\Release\ab.pdb&rdquo; en la propiedad <em>debug</em>; al buscar esa cadena en internet se encuentran referencias a Shellcodes creados con Metasploit.</p>
 <h3 id="33-ejecución-del-binario">
   3.3 Ejecución del binario
@@ -352,17 +353,17 @@
 <p>Dado que el objetivo de este artículo era analizar una macro maliciosa, no entraré a detalle en cómo analizar estáticamente el .exe obtenido (sería interesante en un futuro artículo analizar estáticamente dicho binario); sin embargo, si me pareció importante destacar algunos hallazgos identificados al analizar el binario de manera dinámica.</p>
 <p>Para iniciar, abrimos <em>Procmon</em>, <em>Process Explorer</em> y <em>TCPView</em>, herramientas de la suite <a href="https://learn.microsoft.com/en-us/sysinternals/">SysInternals</a>. En Procmon, creamos un filtro con el nombre del ejecutable (en este caso renombrado a sample.exe) y ejecutamos el archivo.</p>
 <p>Al ejecutar el archivo validamos que simula ser ApacheBench, incluso teniendo como publicador a &ldquo;Apache Software Foundation&rdquo;:</p>
-<p><img src="/img/002-firewall.png" alt="alt text" title="Windows Firewall"></p>
+<p><img alt="alt text" src="/img/002-firewall.png" title="Windows Firewall"></p>
 <p>Analizando <em>Procmon</em> vemos varias acciones sobre el registro, carpetas y procesos; sin embargo, de especial interés es que vemos en <em>TCPView</em> que el proceso empezó a recibir conexiones en el puerto 80:</p>
-<p><img src="/img/002-tcpview.png" alt="alt text" title="TCP View"></p>
+<p><img alt="alt text" src="/img/002-tcpview.png" title="TCP View"></p>
 <p>Al ver el puerto abierto, y recordar que como parte del análisis había visto referencias a shellcodes de Metasploit me pregunté&hellip; ¿realmente podría ser tan sencillo? ¿Será una bind shell esperando conexiones?</p>
 <p>Para validar, desde otra máquina conectada a la misma red (ambas en una red propia, sin conexión con otros sistemas ni internet), utilicé <em>netcat</em> para conectarme al puerto 80 y&hellip;funcionó!</p>
-<p><img src="/img/002-bindshell.png" alt="alt text" title="BindShell"></p>
+<p><img alt="alt text" src="/img/002-bindshell.png" title="BindShell"></p>
 <p>Efectivamente, en <em>Process Explorer</em> podemos verificar que el proceso sample.exe inició un subproceso cmd.exe</p>
-<p><img src="/img/002-processexplorer.png" alt="alt text" title="Process Explorer"></p>
+<p><img alt="alt text" src="/img/002-processexplorer.png" title="Process Explorer"></p>
 <p>Y, al intentar crear un archivo, validamos que tenemos éxito:</p>
-<p><img src="/img/002-echotxt.png" alt="alt text" title="Hack the planet!">
-<img src="/img/002-filecreated.png" alt="alt text" title="Hack the planet!"></p>
+<p><img alt="alt text" src="/img/002-echotxt.png" title="Hack the planet!">
+<img alt="alt text" src="/img/002-filecreated.png" title="Hack the planet!"></p>
 <h2 id="4-conclusiones">
   4. Conclusiones
   <a href="#4-conclusiones" class="h-anchor" aria-hidden="true">#</a>

@@ -1,5 +1,5 @@
 +++
-title = '005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis'
+title = '005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis'
 date = 2024-02-12T12:03:49-05:00
 draft = false   
 translationKey = '005-dotnet-agent'

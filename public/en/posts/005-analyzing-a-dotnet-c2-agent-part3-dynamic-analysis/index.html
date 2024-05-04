@@ -3,7 +3,7 @@
   <head>
     
       <title>
-        005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis
+        005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis
       </title>
     
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -47,19 +47,20 @@
 <link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
 
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis"/>
-<meta name="twitter:description" content="In this article we will dynamically analyze the C2 agent we previously obtained and evaluate ways to interact with it in order to understand how it works."/>
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis">
+<meta name="twitter:description" content="In this article we will dynamically analyze the C2 agent we previously obtained and evaluate ways to interact with it in order to understand how it works.">
 
 
 
-<meta property="og:title" content="005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis" />
-<meta property="og:description" content="In this article we will dynamically analyze the C2 agent we previously obtained and evaluate ways to interact with it in order to understand how it works." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-02-12T12:03:49-05:00" />
-<meta property="article:modified_time" content="2024-02-12T12:03:49-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
-
+<meta property="og:url" content="/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/">
+  <meta property="og:site_name" content="Threat Anatomy Blog">
+  <meta property="og:title" content="005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis">
+  <meta property="og:description" content="In this article we will dynamically analyze the C2 agent we previously obtained and evaluate ways to interact with it in order to understand how it works.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-02-12T12:03:49-05:00">
+    <meta property="article:modified_time" content="2024-02-12T12:03:49-05:00">
 
 
 
@@ -158,7 +159,7 @@
   
 
   <article class="post">
-    <h1 class="post-title">005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis</h1>
+    <h1 class="post-title">005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis</h1>
     <div class="post-meta">
       
         <time class="post-date">
@@ -205,8 +206,8 @@
   <a href="#21-environment-setup-and-initial-connection" class="h-anchor" aria-hidden="true">#</a>
 </h3>
 <p>As part of the static analysis we identified that, after waiting for a few seconds, the program tries to communicate with the IP <em>162.245.191.217</em> on the ports 9149, 15198, 17818, 27781 and 29224, iterating through them until it gets a successful connection. We can verify that the program does indeed make such connection attempts using <em>TCPView</em> or <em>Process Monitor</em>:</p>
-<p><img src="/img/005_TCPView1.png" alt="alt text" title="Connection in TCP View"></p>
-<p><img src="/img/005_Procmon1.png" alt="alt text" title="Connection in Process Monitor"></p>
+<p><img alt="alt text" src="/img/005_TCPView1.png" title="Connection in TCP View"></p>
+<p><img alt="alt text" src="/img/005_Procmon1.png" title="Connection in Process Monitor"></p>
 <p>Since the binary requires a successful response from the server to continue, we can proceed in two ways:</p>
 <ol>
 <li>Modify the destination IP during execution using DNSpy</li>
@@ -235,9 +236,9 @@
 </span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#39;Connected by&#39;</span>, addr)
 </span></span><span style="display:flex;"><span>        conn<span style="color:#f92672">.</span>sendall(message_content<span style="color:#f92672">.</span>encode())
 </span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Data sent to the client.&#34;</span>)
-</span></span></code></pre></div><p><img src="/img/005_expected.png" alt="alt text" title="Message to send"></p>
+</span></span></code></pre></div><p><img alt="alt text" src="/img/005_expected.png" title="Message to send"></p>
 <p>However, we quickly realize that sending a message will not be so simple; the agent implements custom logic to determine the size of the message and thus know when to stop &ldquo;reading&rdquo; data:
-<img src="/img/005-breakpoint.png" alt="alt text" title="Identification logic"></p>
+<img alt="alt text" src="/img/005-breakpoint.png" title="Identification logic"></p>
 <p>Furthermore, due to differences in how C# (what the agent is written in) and Python (the server we are using to impersonate the real server) handle TCP messages, it is necessary to make adjustments to the code so that the agent can understand the message:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> socket
 </span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> struct
@@ -268,9 +269,9 @@
 </span></span><span style="display:flex;"><span>        conn<span style="color:#f92672">.</span>sendall(message_to_send)
 </span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;Data sent to the client.&#34;</span>)
 </span></span></code></pre></div><p>With these modifications we verify that the message reaches the agent correctly:
-<img src="/img/005-fixedcode.png" alt="alt text" title="Agent receives response"></p>
+<img alt="alt text" src="/img/005-fixedcode.png" title="Agent receives response"></p>
 <p>During analysis it can take a long time for the necessary conditions to be met for the malware to communicate with the server, so extracting the part of the code we want to understand and using it in another program can help us understand what is happening more effectively; to understand how Python sent the messages and how .NET received them, I made a small program that allowed me to validate the response of each stage of the process:
-<img src="/img/005-customdebug.png" alt="alt text" title="Debugging using Visual Studio"></p>
+<img alt="alt text" src="/img/005-customdebug.png" title="Debugging using Visual Studio"></p>
 <p>Once we are able to send information to the agent in a &ldquo;language&rdquo; that it can understand, implementing the logic of receiving information from the agent takes little time. Finally we have how to send commands to the Command and Control agent and we can verify how it behaves in practice.</p>
 <h3 id="22-analysis-of-the-agents-capabilities">
   2.2 Analysis of the agent&rsquo;s capabilities
@@ -283,41 +284,44 @@
 </h4>
 <p>When the command &ldquo;geyTtavs&rdquo; is received, we expect the ID of each process to be sent, followed by the name of each process, following the pattern
 <em>Process ID1&gt;ProcessName1&gt;0&gt;IDProcess2&gt;ProcessName2&gt;0&gt;&lt;</em>. Using Wireshark, we can verify that the information is indeed sent this way:
-<img src="/img/005-listarProcesos.png" alt="alt text" title="DNSpy view of parsing processess">
-<img src="/img/005-listarProcesosWireshark.png" alt="alt text" title="Wireshark view of parsing processess"></p>
+<img alt="alt text" src="/img/005-listarProcesos.png" title="DNSpy view of parsing processess">
+<img alt="alt text" src="/img/005-listarProcesosWireshark.png" title="Wireshark view of parsing processess"></p>
 <p>On the server, we can modify our script to better parse the received information:
-<img src="/img/005-viewProcEng.png" alt="alt text" title="Server view of parsing processess">
-<img src="/img/005-taskexplorer.png" alt="alt text" title="Server view of parsing processess"></p>
+<img alt="alt text" src="/img/005-viewProcEng.png" title="Server view of parsing processess">
+<img alt="alt text" src="/img/005-taskexplorer.png" title="Server view of parsing processess"></p>
 <h4 id="222-establish-persistence">
   2.2.2 Establish persistence
   <a href="#222-establish-persistence" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>Another of the functions offered by the C2 agent that we identified during the static analysis is that of establishing persistence, which we can verify using <em>Autoruns</em> and <em>Process monitor</em>.
-<img src="/img/005-persistenceEng.png" alt="alt text" title="Command to establish persistence">
-<img src="/img/005-persistenciaPM.png" alt="alt text" title="Persistence through Registry key">
-<img src="/img/005-persistencia2.png" alt="alt text" title="Persistence through Registry key"></p>
+<img alt="alt text" src="/img/005-persistenceEng.png" title="Command to establish persistence">
+<img alt="alt text" src="/img/005-persistenciaPM.png" title="Persistence through Registry key">
+<img alt="alt text" src="/img/005-persistencia2.png" title="Persistence through Registry key"></p>
 <p>The C2 agent uses the registry key <em>HKEY_CURRENT_USERSoftware\Microsoft\Windows\CurrentVersion\Run</em> to configure the agent to run at each login (<a href="https://attack.mitre.org/techniques/T1547/001/">technique T1547.001 in MITRE ATT&amp;CK</a>).</p>
 <h4 id="223-exfiltrating-files">
   2.2.3 Exfiltrating files
   <a href="#223-exfiltrating-files" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>The agent offers the attacker the ability to exfiltrate files using the &ldquo;afyTile&rdquo; command, for which it receives a file path and proceeds to send the file to the C2 server; we can update our server to interact with that function and confirm the agent read and sent the file using <em>Wireshark</em> and <em>Process Monitor</em>:
-<img src="/img/005-exfilEng.png" alt="alt text" title="File exfiltrated to C2">
-<img src="/img/005-exfil2.png" alt="alt text" title="File read on filesystem">
-<img src="/img/005-exfil3.png" alt="alt text" title="Data sent through Wireshark"></p>
+<img alt="alt text" src="/img/005-exfilEng.png" title="File exfiltrated to C2">
+<img alt="alt text" src="/img/005-exfil2.png" title="File read on filesystem">
+<img alt="alt text" src="/img/005-exfil3.png" title="Data sent through Wireshark"></p>
 <h4 id="224-downloading-and-executing-programs">
   2.2.4 Downloading and executing programs
   <a href="#224-downloading-and-executing-programs" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>One of the most interesting capabilities offered by the agent is the ability to download and execute binaries from the C2 server, so an attacker can extend their attack using capabilities not initially available in the malware. One of the situations where we constantly see such a technique is with <a href="https://blog.google/threat-analysis-group/exposing-initial-access-broker-ties-conti/">organizations that</a> <a href="https://www.darkreading.com/threat-intelligence/-gold-melody-access-broker-unpatched-servers">deploy</a> <a href="https://www.blackberry.com/us/en/solutions/endpoint-security/ransomware-protection/lockbit">ransomware</a>, where organizations known as <em>Initial Access Brokers (IABs)</em> sell the access they gained into a company to Ransomware organizations such as Lockbit and Conti.</p>
-<p><img src="/img/005-download.png" alt="alt text" title="Download and execute"></p>
+<p><img alt="alt text" src="/img/005-download.png" title="Download and execute"></p>
 <p>For my initial test, I had the application download and execute the Windows calculator:
-<img src="/img/005-calc.png" alt="alt text" title="Opening a calculator"></p>
+<img alt="alt text" src="/img/005-calc.png" title="Opening a calculator"></p>
 <p>However, since running the calculator is boring, I decided to download Wannacry simulating what a real attacker might do:
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <iframe src="https://www.youtube.com/embed/BXkm-5nxo2A" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
-</div>
+
+    
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="allowfullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/BXkm-5nxo2A?autoplay=0&controls=1&end=0&loop=0&mute=0&start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"
+      ></iframe>
+    </div>
 </p>
 <h3 id="23-c2-server-demo">
   2.3 C2 server demo
@@ -326,9 +330,12 @@
 <p>After analyzing some of the capabilities offered by the agent (facilitated by the easy decompilation of .NET), I managed to implement a server capable of communicating with it based only on the agent&rsquo;s code; among the features that I implemented are listing processes, obtaining system information, executing commands, establishing persistence, listing files in a directory, and downloading and executing binaries.</p>
 <p>The following video shows some of the capabilities:
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-  <iframe src="https://www.youtube.com/embed/kr9-kPQhMEo" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
-</div>
+
+    
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+      <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="allowfullscreen" loading="eager" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/kr9-kPQhMEo?autoplay=0&controls=1&end=0&loop=0&mute=0&start=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="YouTube video"
+      ></iframe>
+    </div>
 </p>
 <p>As shown in the video, the agent establishes communication with the Command and Control server every minute, which allows the attacker to send different commands; among those reviewed are the download and execution of binaries, where <a href="https://github.com/gentilkiwi/mimikatz"><em>Mimikatz</em></a> was downloaded and executed, the listing of system processes, where we identified the <em>Mimikatz</em> process, and obtaining system information, where we obtained the name of the machine, the user, the Windows version, as well as the path where the agent was running.</p>
 <p>Furthermore, we can see how these activities appear in tools such as <em>Process Explorer</em>, <em>Process Monitor</em>, <em>TCP View</em> and <em>Wireshark</em>, which allow us to understand in detail the actions triggered by each capability of the malware.</p>

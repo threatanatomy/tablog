@@ -47,19 +47,20 @@
 <link href="/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
 
 
-<meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="004 - Analyzing a C2 agent - Part 2: the agent - Static analysis"/>
-<meta name="twitter:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it."/>
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="004 - Analyzing a C2 agent - Part 2: the agent - Static analysis">
+<meta name="twitter:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it.">
 
 
 
-<meta property="og:title" content="004 - Analyzing a C2 agent - Part 2: the agent - Static analysis" />
-<meta property="og:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="/en/posts/004-analyzing-a-dotnet-c2-agent/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-01-05T12:03:49-05:00" />
-<meta property="article:modified_time" content="2024-01-05T12:03:49-05:00" /><meta property="og:site_name" content="Threat Anatomy Blog" />
-
+<meta property="og:url" content="/en/posts/004-analyzing-a-dotnet-c2-agent/">
+  <meta property="og:site_name" content="Threat Anatomy Blog">
+  <meta property="og:title" content="004 - Analyzing a C2 agent - Part 2: the agent - Static analysis">
+  <meta property="og:description" content="In this article, a direct continuation of the previous article, we analyze a C2 agent developed in .NET to identify how it evades defenses, the capabilities it offers, and how we can obtain indicators of compromise from it.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-01-05T12:03:49-05:00">
+    <meta property="article:modified_time" content="2024-01-05T12:03:49-05:00">
 
 
 
@@ -224,15 +225,15 @@
 </tbody>
 </table>
 <p>After opening the binary in <a href="https://www.winitor.com/download">PEStudio</a>, we see some interesting things:</p>
-<p><img src="/img/004-pestudio1.png" alt="alt text" title="PEStudio Analysis"></p>
+<p><img alt="alt text" src="/img/004-pestudio1.png" title="PEStudio Analysis"></p>
 <ol>
 <li>PEStudio identifies the binary as of &ldquo;Microsoft .NET&rdquo; type.</li>
 <li>The binary appears to have been compiled on September 05 2023, so it is recent (this value can be altered so it is not 100% reliable).</li>
 <li>The path to the &ldquo;debug&rdquo; file of the binary is identified, which contains \obj\Debug, a standard directory created by Visual Studio.</li>
 </ol>
 <p>These factors seem to suggest that it is a .NET program; additionally, by analyzing some of the other sections provided by PEStudio we can get further confirmation of this:</p>
-<p><img src="/img/004-pestudio2.png" alt="alt text" title="PEStudio Indicators"></p>
-<p><img src="/img/004-pestudio3.png" alt="alt text" title="PEStudio Imports"></p>
+<p><img alt="alt text" src="/img/004-pestudio2.png" title="PEStudio Indicators"></p>
+<p><img alt="alt text" src="/img/004-pestudio3.png" title="PEStudio Imports"></p>
 <ol>
 <li>PEStudio identifies the .NET namespace System.Net.Socket</li>
 <li>PEStudio identifies that the program, during its execution, imports <a href="https://learn.microsoft.com/en-us/dotnet/api/?view=net-8.0">.NET classes</a></li>
@@ -250,7 +251,7 @@
   <a href="#22-initial-analysis-of-the-binary" class="h-anchor" aria-hidden="true">#</a>
 </h3>
 <p>When we open the executable in <em>dnSpy</em>, we validate that we can indeed visualize the code:</p>
-<p><img src="/img/004-dnspy.png" alt="alt text" title="dnSpy"></p>
+<p><img alt="alt text" src="/img/004-dnspy.png" title="dnSpy"></p>
 <p>Since analyzing each function called by the executable can be very tedious (specially if it contains garbage code to hinder analysis), we will follow the flow of calls made from the Main method.</p>
 <ol>
 <li>We verify that when the program starts it calls the Form1 form, which, when initialized, invokes the <strong>InitializeComponent()</strong> method. From this method&rsquo;s configuration we can gather three things:
@@ -409,9 +410,9 @@
   <a href="#231-list-processes" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>As in the macro containing the binary, the use of underscores to separate commands/variables is seen:</p>
-<p><img src="/img/004-lp1.png" alt="alt text" title="Obfuscation"></p>
+<p><img alt="alt text" src="/img/004-lp1.png" title="Obfuscation"></p>
 <p>When the &ldquo;geyTtavs&rdquo; command is received, the processes running on the system are obtained and their ID and name are sent to the server using the <strong>loadQData</strong> function:</p>
-<p><img src="/img/004-lp2.png" alt="alt text" title="List Processes"></p>
+<p><img alt="alt text" src="/img/004-lp2.png" title="List Processes"></p>
 <p>The <strong>loadQData</strong> function sends the type of response to expect, the size of the response and the response to the server.</p>
 <p>Just by analyzing the &ldquo;list processes&rdquo; function, we can confirm that it is indeed a Command and Control agent: the program contacts a server, receives an instruction (list processes in this case) and sends the response to the server.</p>
 <h4 id="232-establish-persistence">
@@ -420,32 +421,32 @@
 </h4>
 <p>The registry key <em>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</em> is usually abused by attackers to establish persistence; such technique is <a href="https://attack.mitre.org/techniques/T1547/001/">listed in MITRE ATT&amp;CK with ID T1547.001</a> and <a href="https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys">allows an attacker to run a program when the user logs in</a>, under the context (permissions) of that user.</p>
 <p>We verify that the agent provides the capability to establish persistence. On receiving the command &ldquo;puyTtsrt&rdquo; it creates the registry key with name &ldquo;haijwivetsgVr&rdquo;:</p>
-<p><img src="/img/004-pers1.png" alt="alt text" title="Establish persistence 1"></p>
-<p><img src="/img/004-pers2.png" alt="alt text" title="Establish persistence 2"></p>
-<p><img src="/img/004-pers3.png" alt="alt text" title="Establish persistence 3"></p>
+<p><img alt="alt text" src="/img/004-pers1.png" title="Establish persistence 1"></p>
+<p><img alt="alt text" src="/img/004-pers2.png" title="Establish persistence 2"></p>
+<p><img alt="alt text" src="/img/004-pers3.png" title="Establish persistence 3"></p>
 <p>As before, we see that the path name in the registry has been split using underscores to make identification more difficult.</p>
 <h4 id="233-list-files">
   2.3.3 List files
   <a href="#233-list-files" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>Upon receiving the &ldquo;flyTes&rdquo; command along with a path, the command lists the files in the path using the <strong>Directory.GetFiles</strong> method, concatenates them using the character &lsquo;&gt;&rsquo; as a separator and sends them to the server:</p>
-<p><img src="/img/004-listfiles.png" alt="alt text" title="Listing files"></p>
-<p><img src="/img/004-listfiles2.png" alt="alt text" title="Read directory"></p>
+<p><img alt="alt text" src="/img/004-listfiles.png" title="Listing files"></p>
+<p><img alt="alt text" src="/img/004-listfiles2.png" title="Read directory"></p>
 <h4 id="234-take-screenshots">
   2.3.4 Take screenshots
   <a href="#234-take-screenshots" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>The &ldquo;cdyTcrgn&rdquo;, &ldquo;csyTcrgn&rdquo; and &ldquo;csyTdcrgn&rdquo; commands can be used to take screenshots and send them to the server:</p>
-<p><img src="/img/004-sc1.png" alt="alt text" title="Screen capture 1"></p>
-<p><img src="/img/004-sc2.png" alt="alt text" title="Screen capture 2"></p>
-<p><img src="/img/004-sc3.png" alt="alt text" title="Screen capture 3"></p>
+<p><img alt="alt text" src="/img/004-sc1.png" title="Screen capture 1"></p>
+<p><img alt="alt text" src="/img/004-sc2.png" title="Screen capture 2"></p>
+<p><img alt="alt text" src="/img/004-sc3.png" title="Screen capture 3"></p>
 <h4 id="235-file-exfiltration">
   2.3.5 File exfiltration
   <a href="#235-file-exfiltration" class="h-anchor" aria-hidden="true">#</a>
 </h4>
 <p>The &ldquo;afyTile&rdquo; command can be used to exfiltrate a file from the victim&rsquo;s machine to the server; to do so, it receives the path of the file to exfiltrate as a parameter:</p>
-<p><img src="/img/004-exfilb.png" alt="alt text" title="File exfiltration"></p>
-<p><img src="/img/004-exfila.png" alt="alt text" title="File exfiltration 2"></p>
+<p><img alt="alt text" src="/img/004-exfilb.png" title="File exfiltration"></p>
+<p><img alt="alt text" src="/img/004-exfila.png" title="File exfiltration 2"></p>
 <p>The information sent back to the server includes the file path, the file name and the contents of the file.</p>
 <h4 id="236-execute-binaries">
   2.3.6 Execute binaries
@@ -609,7 +610,7 @@
               <span class="button previous">
                 <a href="/en/posts/005-analyzing-a-dotnet-c2-agent-part3-dynamic-analysis/">
                   <span class="button__icon">←</span>
-                  <span class="button__text">005 - Analyzing a C2 agent - Part 2: the agent - Dynamic analysis</span>
+                  <span class="button__text">005 - Analyzing a C2 agent - Part 3: the agent - Dynamic analysis</span>
                 </a>
               </span>
             
